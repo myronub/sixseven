@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZGGXD - Competitive Gaming Platform</title>
+    <link rel="stylesheet" href="global.css">
+    <script src="app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <a href="../" class="logo">EZ<span>GGXD</span></a>
+            <nav>
+                <ul>
+                    <li><a href="../" class="active">Home</a></li>
+                    <li><a href="../lb/">Leaderboard</a></li>
+                    <li><a href="../matches/">Matches</a></li>
+                    <li><a href="../proofs/">Recent Proofs</a></li>
+                    <li><a href="../replays/">Replays</a></li>
+                    <li><a href="../rules/">Rules</a></li>
+                </ul>
+            </nav>
+            <div class="user-info">
+                <span id="user-display-name" class="hidden">Guest</span>
+                <button id="auth-btn" class="btn btn-primary">Sign In</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero-section">
+            <h1>Welcome to EZGGXD</h1>
+            <p>The ultimate competitive gaming platform where skill meets proof</p>
+            <div class="mt-2">
+                <a href="../matches/" class="btn btn-secondary btn-lg">Start Playing</a>
+                <a href="../rules/" class="btn btn-outline btn-lg">View Rules</a>
+            </div>
+        </section>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number">1,254</span>
+                <span class="stat-label">Active Players</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">8,942</span>
+                <span class="stat-label">Matches Played</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">634</span>
+                <span class="stat-label">Verified Proofs</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">92%</span>
+                <span class="stat-label">Satisfaction Rate</span>
+            </div>
+        </div>
+
+        <div class="match-container">
+            <div class="search-section">
+                <h3>Quick Match</h3>
+                <p>Find an opponent and start a match right away!</p>
+                <div class="search-bar">
+                    <input type="text" class="form-control" placeholder="Search for players...">
+                    <button class="btn btn-primary">Search</button>
+                </div>
+            </div>
+            
+            <div class="pending-section">
+                <h3>Top Players</h3>
+                <div class="user-list">
+                    <div class="user-item">
+                        <div>
+                            <strong>Pro Player</strong>
+                            <p>@ProPlayer1 • Win Rate: 90%</p>
+                        </div>
+                        <button class="btn btn-primary btn-sm">Challenge</button>
+                    </div>
+                    <div class="user-item">
+                        <div>
+                            <strong>The Champion</strong>
+                            <p>@Champion2 • Win Rate: 84%</p>
+                        </div>
+                        <button class="btn btn-primary btn-sm">Challenge</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="logo">EZ<span>GGXD</span></div>
+            <div class="footer-links">
+                <a href="#">About</a>
+                <a href="#">Contact</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+            </div>
+            <p>&copy; 2023 EZGGXD. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../app.js"></script>
+</body>
+</html>
