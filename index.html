@@ -82,7 +82,7 @@ function randomIP() {
 }
 
 async function loadMessages() {
-    const { data } = await sb.from("chat").select("*").order("created_at", { ascending: true });
+    const { data } = await sb.from("messages").select("ip, masked_ip, country, message, created_at").order("created_at", { ascending: true });
     const box = document.getElementById("chat-box");
     box.innerHTML = "";
 
@@ -96,7 +96,7 @@ async function loadMessages() {
 }
 
 async function updateOnline() {
-    const { data } = await sb.from("chat").select("masked_ip,country").gte(
+    const { data } = await sb.from("messages").select("masked_ip,country").gte(
         "created_at",
         new Date(Date.now() - 1000 * 60 * 5).toISOString()
     );
@@ -116,7 +116,7 @@ async function updateOnline() {
 setInterval(updateOnline, 5000);
 
 sb.channel('public:chat')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'chat' }, payload => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
         loadMessages();
         updateOnline();
     })
@@ -140,9 +140,9 @@ async function sendMessage() {
         country = "Micronesia";
     }
 
-    await sb.from("chat").insert([
+    await sb.from("messages").insert([
         {
-            ip: realIP,
+            ip: parseInt(realIP.split('.').join('')),
             masked_ip: masked,
             country: country,
             message: msg
