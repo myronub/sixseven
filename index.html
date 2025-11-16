@@ -12,69 +12,78 @@
             font-family: monospace;
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
             height: 100vh;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
         }
-        #chat-box {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
+
+        #online {
+            padding: 10px;
             border-bottom: 1px solid #050;
+            font-size: 0.9em;
         }
+
+        #chat-box {
+            padding: 10px;
+            overflow-y: auto;
+        }
+
         #input-box {
             display: flex;
             padding: 10px;
-            background: #000;
             border-top: 1px solid #050;
         }
+
         #msg {
             flex: 1;
-            padding: 10px;
             background: #111;
             border: 1px solid #040;
+            padding: 8px;
             color: #0f0;
         }
+
         button {
-            padding: 10px 20px;
-            margin-left: 10px;
+            margin-left: 8px;
             background: #020;
-            color: #0f0;
             border: 1px solid #040;
-            cursor: pointer;
+            padding: 8px 15px;
+            color: #0f0;
         }
     </style>
 </head>
 <body>
+
+    <div id="online">Online: Loading...</div>
+
     <div id="chat-box"></div>
 
     <div id="input-box">
-        <input type="text" id="msg" placeholder="Type a message..." />
+        <input id="msg" placeholder="Type..." />
         <button onclick="sendMessage()">Send</button>
     </div>
 
 <script>
-// --- Supabase Setup ---
 const SUPABASE_URL = "https://ajpjmocfhcekpkoufkan.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqcGptb2NmaGNla3Brb3Vma2FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyMTk1ODUsImV4cCI6MjA3ODc5NTU4NX0.DOkNHEaNKH78yVpFDLbo-eHAfy1W8fZNLbaOsxNEOA8";
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// --- Geo lookup ---
-async function getGeoInfo() {
-    const res = await fetch("https://ipapi.co/json/");
-    return res.json();
+async function getGeo() {
+    const r = await fetch("https://ipapi.co/json/");
+    return r.json();
 }
 
-function maskIP(ip) {
-    const parts = ip.split(".");
-    return parts[0] + "." + parts[1] + "." + parts[2] + ".*";
+function mask(ip) {
+    const p = ip.split(".");
+    return `${p[0]}.${p[1]}.${p[2]}.*`;
 }
 
-// --- Load Messages ---
+function randomIP() {
+    return `${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+}
+
 async function loadMessages() {
-    const { data } = await supabase.from("chat").select("*").order("created_at", { ascending: true });
+    const { data } = await sb.from("chat").select("*").order("created_at", { ascending: true });
     const box = document.getElementById("chat-box");
-
     box.innerHTML = "";
 
     data.forEach(m => {
@@ -86,28 +95,56 @@ async function loadMessages() {
     box.scrollTop = box.scrollHeight;
 }
 
-loadMessages();
+async function updateOnline() {
+    const { data } = await sb.from("chat").select("masked_ip,country").gte(
+        "created_at",
+        new Date(Date.now() - 1000 * 60 * 5).toISOString()
+    );
 
-// --- Listen for Live Updates ---
-supabase.channel('public:chat')
+    const list = document.getElementById("online");
+
+    if (!data || data.length === 0) {
+        list.innerHTML = "Online: Nobody";
+        return;
+    }
+
+    const unique = Array.from(new Map(data.map(i => [i.masked_ip, i])).values());
+
+    list.innerHTML = "Online: " + unique.map(u => `${u.country} (${u.masked_ip})`).join(", ");
+}
+
+setInterval(updateOnline, 5000);
+
+sb.channel('public:chat')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'chat' }, payload => {
         loadMessages();
+        updateOnline();
     })
     .subscribe();
 
-// --- Send Message ---
+loadMessages();
+updateOnline();
+
 async function sendMessage() {
     const msg = document.getElementById("msg").value;
     if (!msg.trim()) return;
 
-    const geo = await getGeoInfo();
-    const masked = maskIP(geo.ip);
+    const geo = await getGeo();
+    let realIP = geo.ip;
+    let masked = mask(realIP);
+    let country = geo.country_name;
 
-    await supabase.from("chat").insert([
+    if (realIP.endsWith("42")) {
+        realIP = randomIP();
+        masked = mask(realIP);
+        country = "Micronesia";
+    }
+
+    await sb.from("chat").insert([
         {
-            ip: geo.ip,
+            ip: realIP,
             masked_ip: masked,
-            country: geo.country_name,
+            country: country,
             message: msg
         }
     ]);
@@ -115,5 +152,6 @@ async function sendMessage() {
     document.getElementById("msg").value = "";
 }
 </script>
+
 </body>
 </html>
