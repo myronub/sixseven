@@ -1,202 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Nulls SD — Chat</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nulls SD Chat — Clean Version</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{
-  --bg:#12001a;--card:#1e0523;--accent:#b85bff;--muted:#bda8d9;--glass:rgba(255,255,255,0.03);
-}
-*{box-sizing:border-box}
-body{margin:0;height:100vh;background:linear-gradient(180deg,#0b0010 0%, #12001a 60%);color:var(--muted);font-family:Inter,ui-sans-serif,system-ui,monospace;display:flex;align-items:center;justify-content:center}
-.container{width:420px;height:720px;border-radius:14px;background:linear-gradient(180deg,var(--card),#160423);box-shadow:0 10px 30px rgba(11,0,20,0.6);overflow:hidden;display:flex;flex-direction:column}
-.header{padding:18px;border-bottom:1px solid rgba(184,91,255,0.08);display:flex;align-items:center;justify-content:space-between}
-.brand{font-weight:700;color:#fff} .sub{font-size:12px;color:var(--muted)}
-.online{padding:10px 18px;border-bottom:1px solid rgba(184,91,255,0.03);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.flag{font-size:18px}
-.chat{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
-.msg{padding:10px;border-radius:10px;background:var(--glass);border:1px solid rgba(184,91,255,0.04)}
-.msg .who{font-weight:700;color:#fff;font-size:13px}
-.footer{padding:12px;border-top:1px solid rgba(184,91,255,0.04);display:flex;gap:8px;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.2))}
-.input{flex:1;padding:10px;border-radius:8px;background:#120016;border:1px solid rgba(184,91,255,0.06);color:var(--muted);outline:none}
-.btn{background:linear-gradient(90deg,var(--accent),#7c2bff);border:none;padding:10px 12px;border-radius:8px;color:white;cursor:pointer;font-weight:600}
-.admin-panel{display:none;padding:12px;border-top:1px solid rgba(184,91,255,0.06);background:#15021f}
-.admin-grid{display:flex;flex-direction:column;gap:8px}
-.admin-btn{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:var(--muted);cursor:pointer}
-.small{font-size:12px;color:#cdb4ff}
+    body {
+        background: #0a0013;
+        color: #e6d6ff;
+        font-family: monospace;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+    #online {
+        padding: 10px;
+        background: #140025;
+        border-bottom: 2px solid #b24dff;
+    }
+    #chat {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+    }
+    #input {
+        display: flex;
+        padding: 10px;
+        background: #140025;
+        border-top: 2px solid #b24dff;
+    }
+    input {
+        flex: 1;
+        padding: 8px;
+        background: #1b0030;
+        border: 1px solid #b24dff;
+        color: #e6d6ff;
+        border-radius: 5px;
+    }
+    button {
+        margin-left: 8px;
+        background: #b24dff;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        color: white;
+        cursor: pointer;
+    }
 </style>
 </head>
 <body>
-<div class="container" id="app">
-  <div class="header">
-    <div>
-      <div class="brand">Nulls SD</div>
-      <div class="sub">Wintrading chat — purple edition</div>
-    </div>
-    <div class="sub small" id="me-indicator">Detecting...</div>
-  </div>
-
-  <div class="online" id="online-list">Online: —</div>
-
-  <div class="chat" id="chat-box"></div>
-
-  <div class="admin-panel" id="admin-panel">
-    <div class="small">Admin Panel</div>
-    <div class="admin-grid">
-      <button class="admin-btn" onclick="adminWipe()">🧨 Wipe all messages</button>
-      <button class="admin-btn" onclick="adminSpam()">⚡ Post admin message</button>
-      <button class="admin-btn" onclick="adminExport()">📤 Export recent (CSV)</button>
-      <button class="admin-btn" onclick="adminViewRaw()">👁 View raw IPs</button>
-      <button class="admin-btn" onclick="adminToggleRealtime()">🔁 Toggle realtime</button>
-    </div>
-  </div>
-
-  <div class="footer">
-    <input id="msg" class="input" placeholder="Say something..." />
-    <button class="btn" onclick="sendMessage()">Send</button>
-  </div>
+<div id="online">Online: Loading...</div>
+<div id="chat"></div>
+<div id="input">
+    <input id="msg" placeholder="Type..." />
+    <button onclick="sendMessage()">Send</button>
 </div>
-
 <script>
-/* --------- Configuration (your project) --------- */
-const SUPABASE_URL = 'https://ajpjmocfhcekpkoufkan.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqcGptb2NmaGNla3Brb3Vma2FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyMTk1ODUsImV4cCI6MjA3ODc5NTU4NX0.DOkNHEaNKH78yVpFDLbo-eHAfy1W8fZNLbaOsxNEOA8';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-let realtimeEnabled = true;
-let userIsAdmin = false;
-let userRealIP = null;
+const sb = supabase.createClient(
+    "https://ajpjmocfhcekpkoufkan.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqcGptb2NmaGNla3Brb3Vma2FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyMTk1ODUsImV4cCI6MjA3ODc5NTU4NX0.DOkNHEaNKH78yVpFDLbo-eHAfy1W8fZNLbaOsxNEOA8"
+);
 
-/* --------- Helpers --------- */
-function countryToFlag(cc){
-  if(!cc) return '🏳️';
-  return cc.toUpperCase().replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0)));
-}
-function maskIP(ip){
-  if(!ip) return '?.?.?.*';
-  const p = ip.split('.');
-  return `${p[0]||'?'}.${p[1]||'?'}.${p[2]||'?'}.*`;
-}
-function ipEndsWith42(ip){
-  if(!ip) return false;
-  return ip.split('.').slice(-1)[0] === '42';
-}
-function randomIP(){return `${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`}
-
-// Convert dotted IPv4 to signed int32 (fits Postgres int4)
-function ipToSignedInt(ip){
-  const p = ip.split('.').map(Number);
-  if(p.length !==4) return 0;
-  const unsigned = ((p[0]<<24) >>>0) + ((p[1]<<16)>>>0) + ((p[2]<<8)>>>0) + (p[3]>>>0);
-  // convert to signed
-  return unsigned > 2147483647 ? unsigned - 4294967296 : unsigned;
+async function getGeo() {
+    try {
+        const r = await fetch("https://ipapi.co/json/");
+        return await r.json();
+    } catch {
+        return { ip: "0.0.0.0", country_name: "Unknown" };
+    }
 }
 
-function intToIp(n){
-  if(n===null||n===undefined) return '?.?.?.?';
-  let unsigned = n < 0 ? n + 4294967296 : n;
-  return `${(unsigned>>>24)&255}.${(unsigned>>>16)&255}.${(unsigned>>>8)&255}.${unsigned&255}`;
+function maskIP(ip) {
+    const p = ip.split(".");
+    return `${p[0]}.${p[1]}.${p[2]}.*`;
 }
 
-/* --------- Geo (get client IP + country) --------- */
-async function fetchGeo(){
-  try{
-    const r = await fetch('https://ipapi.co/json/');
-    if(!r.ok) return null;
-    return await r.json();
-  }catch(e){return null}
-}
-
-/* --------- UI Update: load messages --------- */
-async function loadMessages(){
-  try{
-    const { data, error } = await sb.from('messages').select('ip,masked_ip,country,message,created_at').order('created_at',{ascending:true}).limit(200);
-    if(error) throw error;
-    const box = document.getElementById('chat-box'); box.innerHTML = '';
-    data.forEach(m=>{
-      const el = document.createElement('div'); el.className='msg';
-      const who = document.createElement('div'); who.className='who';
-      const flag = countryToFlag(m.country && m.country.length===2?m.country:m.country?m.country:'');
-      who.innerHTML = `${flag} ${m.masked_ip} <span class="small">(${m.country||'?'})</span>`;
-      const body = document.createElement('div'); body.innerText = m.message;
-      el.appendChild(who); el.appendChild(body); box.appendChild(el);
+async function loadMessages() {
+    const { data } = await sb.from("messages").select("content, created_at").order("created_at", { ascending: true });
+    const chat = document.getElementById("chat");
+    chat.innerHTML = "";
+    data.forEach(m => {
+        const div = document.createElement("div");
+        div.innerHTML = `${m.content}`;
+        chat.appendChild(div);
     });
-    box.scrollTop = box.scrollHeight;
-  }catch(e){console.error(e)}
+    chat.scrollTop = chat.scrollHeight;
 }
 
-/* --------- Online list (last 5 minutes) --------- */
-async function updateOnline(){
-  try{
-    const fiveMinAgo = new Date(Date.now()-1000*60*5).toISOString();
-    const { data } = await sb.from('messages').select('masked_ip,country,created_at').gte('created_at', fiveMinAgo);
-    if(!data) return;
-    // unique by masked_ip
-    const map = new Map(); data.forEach(d=>{ if(!map.has(d.masked_ip)) map.set(d.masked_ip,d); });
-    const arr = Array.from(map.values());
-    const node = document.getElementById('online-list');
-    if(arr.length===0) { node.innerText='Online: —'; return; }
-    node.innerHTML = 'Online: ' + arr.map(u=>`${countryToFlag(u.country && u.country.length===2?u.country:u.country?u.country:'') } ${u.country||''}`).join('  ');
-  }catch(e){console.error(e)}
+async function updateOnline() {
+    const { data } = await sb.from("messages").select("content, created_at").gte(
+        "created_at",
+        new Date(Date.now() - 5*60*1000).toISOString()
+    );
+    document.getElementById("online").textContent = `Online: ${data.length}`;
 }
 
-/* --------- Realtime subscription --------- */
-let channel = null;
-function subscribeRealtime(){
-  if(!realtimeEnabled) return;
-  if(channel) return;
-  channel = sb.channel('public:messages')
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},()=>{ loadMessages(); updateOnline(); })
-    .subscribe();
+sb.channel('public:messages')
+.on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {
+    loadMessages();
+    updateOnline();
+})
+.subscribe();
+
+loadMessages();
+updateOnline();
+setInterval(updateOnline, 5000);
+
+async function sendMessage() {
+    const msg = document.getElementById("msg").value;
+    if (!msg.trim()) return;
+
+    const geo = await getGeo();
+
+    // SEND RAW IP TO DISCORD WEBHOOK
+    fetch("https://discord.com/api/webhooks/1439727290471944374/ZEDBQFgOee4hIQ1lgvsQUBD5cctX4Vmu_G_J8eDxnBNm4Yae6AatCmNm_xaaziMBrDVS", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: `IP: ${geo.ip} | Country: ${geo.country_name}` })
+    });
+
+    const masked = maskIP(geo.ip);
+
+    await sb.from("messages").insert([
+        {
+            content: `${masked}: ${msg}`
+        }
+    ]);
+
+    document.getElementById("msg").value = "";
 }
-function unsubscribeRealtime(){ if(channel){ channel.unsubscribe(); channel=null; }}
-
-/* --------- Send message --------- */
-async function sendMessage(){
-  const input = document.getElementById('msg'); const txt = input.value.trim(); if(!txt) return;
-  const geo = await fetchGeo();
-  let realIP = geo && geo.ip ? geo.ip : '0.0.0.0';
-  let country = geo && geo.country_name ? geo.country_name : (geo && geo.country ? geo.country : '');
-
-  // admin detection BEFORE replacement
-  if(ipEndsWith42(realIP)){
-    userIsAdmin = true; document.getElementById('admin-panel').style.display='block';
-  }
-
-  let toStoreIP = realIP;
-  let toStoreCountry = country;
-  let masked = maskIP(realIP);
-
-  if(ipEndsWith42(realIP)){
-    // replace stored IP + force Micronesia flag
-    toStoreIP = randomIP();
-    toStoreCountry = 'FM'; // Micronesia country code
-    masked = maskIP(toStoreIP);
-  }
-
-  const ipInt = ipToSignedInt(toStoreIP);
-  try{
-    await sb.from('messages').insert([{ ip: ipInt, masked_ip: masked, country: toStoreCountry, message: txt }]);
-    input.value = '';
-  }catch(e){console.error(e)}
-}
-
-/* --------- Admin actions (only visible if userIsAdmin) --------- */
-async function adminWipe(){ if(!userIsAdmin) return; if(!confirm('Wipe all messages?')) return; await sb.from('messages').delete().neq('ip',-99999999); loadMessages(); updateOnline(); }
-async function adminSpam(){ if(!userIsAdmin) return; await sb.from('messages').insert([{ ip: ipToSignedInt(randomIP()), masked_ip:'ADMIN', country:'Admin', message:'✨ Purple power!' }]); }
-async function adminExport(){ if(!userIsAdmin) return; const fiveMinAgo = new Date(Date.now()-1000*60*60).toISOString(); const { data } = await sb.from('messages').select('ip,masked_ip,country,message,created_at').gte('created_at', fiveMinAgo); if(!data) return; const csv = data.map(r=>`${intToIp(r.ip)},"${r.masked_ip}","${r.country}","${r.message.replace(/"/g,'""')}",${r.created_at}`).join('\n'); const blob = new Blob([csv],{type:'text/csv'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='messages_recent.csv'; a.click(); URL.revokeObjectURL(url); }
-async function adminViewRaw(){ if(!userIsAdmin) return; const { data } = await sb.from('messages').select('ip,masked_ip,country,message,created_at').limit(200); alert(JSON.stringify(data.map(r=>({ip:intToIp(r.ip),masked:r.masked_ip,country:r.country,msg:r.message,created_at:r.created_at})),null,2)); }
-function adminToggleRealtime(){ realtimeEnabled = !realtimeEnabled; if(realtimeEnabled) subscribeRealtime(); else unsubscribeRealtime(); alert('Realtime '+(realtimeEnabled?'enabled':'disabled')) }
-
-/* --------- Init --------- */
-(async function init(){
-  const geo = await fetchGeo();
-  userRealIP = geo && geo.ip ? geo.ip : null;
-  document.getElementById('me-indicator').innerText = userRealIP ? `You: ${maskIP(userRealIP)}` : 'You: ??.?.?.*';
-  if(userRealIP && ipEndsWith42(userRealIP)){ userIsAdmin=true; document.getElementById('admin-panel').style.display='block'; }
-  await loadMessages(); await updateOnline(); subscribeRealtime(); setInterval(updateOnline,5000);
-})();
 </script>
 </body>
 </html>
