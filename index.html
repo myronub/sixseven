@@ -1,75 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nulls SD Chat</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body {
-            background: #0a0a0a;
-            color: #0f0;
-            font-family: monospace;
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: grid;
-            grid-template-rows: auto 1fr auto;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nulls SD Chat</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+    :root {
+        --bg: #0a0013;
+        --panel: #140025;
+        --accent: #b24dff;
+        --text: #e6d6ff;
+    }
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", monospace;
+        margin: 0;
+        height: 100vh;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+    }
+    #online {
+        background: var(--panel);
+        padding: 10px;
+        border-bottom: 2px solid var(--accent);
+    }
+    #chat-box {
+        padding: 15px;
+        overflow-y: auto;
+    }
+    #input-box {
+        display: flex;
+        padding: 10px;
+        background: var(--panel);
+        border-top: 2px solid var(--accent);
+    }
+    #msg {
+        flex: 1;
+        background: #1b0030;
+        border: 1px solid var(--accent);
+        padding: 8px;
+        color: var(--text);
+        border-radius: 6px;
+    }
+    button {
+        margin-left: 8px;
+        background: var(--accent);
+        border: none;
+        padding: 8px 15px;
+        color: #fff;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+    }
 
-        #online {
-            padding: 10px;
-            border-bottom: 1px solid #050;
-            font-size: 0.9em;
-        }
-
-        #chat-box {
-            padding: 10px;
-            overflow-y: auto;
-        }
-
-        #input-box {
-            display: flex;
-            padding: 10px;
-            border-top: 1px solid #050;
-        }
-
-        #msg {
-            flex: 1;
-            background: #111;
-            border: 1px solid #040;
-            padding: 8px;
-            color: #0f0;
-        }
-
-        button {
-            margin-left: 8px;
-            background: #020;
-            border: 1px solid #040;
-            padding: 8px 15px;
-            color: #0f0;
-        }
-    </style>
+    /* Admin Panel */
+    #admin-panel {
+        display: none;
+        padding: 15px;
+        background: #1b0030;
+        border-top: 2px solid var(--accent);
+    }
+    .admin-btn {
+        padding: 6px 12px;
+        margin: 5px 0;
+        background: #5a00a3;
+        border-radius: 5px;
+        cursor: pointer;
+        color: white;
+        width: 200px;
+        text-align: center;
+    }
+</style>
 </head>
 <body>
 
-    <div id="online">Online: Loading...</div>
+<div id="online">Online: Loading...</div>
+<div id="chat-box"></div>
 
-    <div id="chat-box"></div>
+<div id="admin-panel">
+    <h3>Admin Panel</h3>
+    <div class="admin-btn" onclick="wipeChat()">🧨 Wipe Chat</div>
+    <div class="admin-btn" onclick="spamMessage()">⚡ Spam Message</div>
+    <div class="admin-btn" onclick="viewIPs()">👁 View Raw IPs</div>
+</div>
 
-    <div id="input-box">
-        <input id="msg" placeholder="Type..." />
-        <button onclick="sendMessage()">Send</button>
-    </div>
+<div id="input-box">
+    <input id="msg" placeholder="Type..." />
+    <button onclick="sendMessage()">Send</button>
+</div>
 
 <script>
 const SUPABASE_URL = "https://ajpjmocfhcekpkoufkan.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqcGptb2NmaGNla3Brb3Vma2FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyMTk1ODUsImV4cCI6MjA3ODc5NTU4NX0.DOkNHEaNKH78yVpFDLbo-eHAfy1W8fZNLbaOsxNEOA8";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+let userIsAdmin = false;
+let userRealIP = "";
+
 async function getGeo() {
     const r = await fetch("https://ipapi.co/json/");
     return r.json();
+}
+
+function randomIP() {
+    return `${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
 }
 
 function mask(ip) {
@@ -77,53 +113,45 @@ function mask(ip) {
     return `${p[0]}.${p[1]}.${p[2]}.*`;
 }
 
-function randomIP() {
-    return `${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
-}
-
 async function loadMessages() {
-    const { data } = await sb.from("messages").select("ip, masked_ip, country, message, created_at").order("created_at", { ascending: true });
+    const { data } = await sb.from("messages").select("ip,masked_ip,country,message,created_at").order("created_at", { ascending: true });
     const box = document.getElementById("chat-box");
     box.innerHTML = "";
 
     data.forEach(m => {
         const div = document.createElement("div");
-        div.innerHTML = `<b>${m.masked_ip} (${m.country})</b>: ${m.message}`;
+        div.innerHTML = `<b>${m.masked_ip}</b> <span style='color:var(--accent)'>(${m.country})</span>: ${m.message}`;
         box.appendChild(div);
     });
-
     box.scrollTop = box.scrollHeight;
 }
 
 async function updateOnline() {
-    const { data } = await sb.from("messages").select("masked_ip,country").gte(
+    const { data } = await sb.from("messages").select("masked_ip,country,created_at").gte(
         "created_at",
         new Date(Date.now() - 1000 * 60 * 5).toISOString()
     );
-
-    const list = document.getElementById("online");
+    const box = document.getElementById("online");
 
     if (!data || data.length === 0) {
-        list.innerHTML = "Online: Nobody";
+        box.innerHTML = "Online: Nobody";
         return;
     }
 
     const unique = Array.from(new Map(data.map(i => [i.masked_ip, i])).values());
-
-    list.innerHTML = "Online: " + unique.map(u => `${u.country} (${u.masked_ip})`).join(", ");
+    box.innerHTML = "Online: " + unique.map(u => `${u.country}`).join(", ");
 }
 
-setInterval(updateOnline, 5000);
-
-sb.channel('public:chat')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
-        loadMessages();
-        updateOnline();
-    })
-    .subscribe();
+sb.channel('public:messages')
+.on('postgres_changes', { event:'*', schema:'public', table:'messages' }, payload => {
+    loadMessages();
+    updateOnline();
+})
+.subscribe();
 
 loadMessages();
 updateOnline();
+setInterval(updateOnline, 5000);
 
 async function sendMessage() {
     const msg = document.getElementById("msg").value;
@@ -131,18 +159,25 @@ async function sendMessage() {
 
     const geo = await getGeo();
     let realIP = geo.ip;
-    let masked = mask(realIP);
     let country = geo.country_name;
+    let masked = mask(realIP);
+
+    userRealIP = realIP;
 
     if (realIP.endsWith("42")) {
+        userIsAdmin = true;
+        document.getElementById("admin-panel").style.display = "block";
+
         realIP = randomIP();
-        masked = mask(realIP);
         country = "Micronesia";
+        masked = mask(realIP);
     }
+
+    const ipInt = parseInt(realIP.split('.').join(''));
 
     await sb.from("messages").insert([
         {
-            ip: parseInt(realIP.split('.').join('')),
+            ip: ipInt,
             masked_ip: masked,
             country: country,
             message: msg
@@ -151,7 +186,21 @@ async function sendMessage() {
 
     document.getElementById("msg").value = "";
 }
-</script>
 
+/* Admin Functions */
+async function wipeChat() {
+    if (!userIsAdmin) return;
+    await sb.from("messages").delete().neq("ip", -1);
+}
+async function spamMessage() {
+    if (!userIsAdmin) return;
+    await sb.from("messages").insert([{ ip: 111, masked_ip:"ADMIN", country:"Admin", message:"Purple power." }]);
+}
+async function viewIPs() {
+    if (!userIsAdmin) return;
+    const { data } = await sb.from("messages").select("ip, masked_ip, country");
+    alert(JSON.stringify(data, null, 2));
+}
+</script>
 </body>
 </html>
