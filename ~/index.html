@@ -239,7 +239,7 @@
             const statusText = document.getElementById('vaultStatus');
             
             try {
-                const response = await fetch('./thelist.txt');
+                const response = await fetch('/thelist.txt');
                 if (!response.ok) throw new Error();
                 const text = await response.text();
                 
@@ -331,3 +331,4 @@
     </script>
 </body>
 </html>
+
