@@ -148,6 +148,16 @@
             background: transparent;
             color: inherit;
         }
+
+        /* Prevent image dragging */
+        img {
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+            user-select: none;
+        }
     </style>
 </head>
 <body class="p-6 md:p-12">
@@ -163,9 +173,9 @@
                 <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-6 border border-white/10">
                     <i data-lucide="shield-alert" class="w-8 h-8 text-white"></i>
                 </div>
-                <h2 class="text-2xl font-black text-white mb-4 tracking-tighter uppercase italic">System Access</h2>
+                <h2 class="text-2xl font-black text-white mb-4 tracking-tighter uppercase italic">warning</h2>
                 <div class="text-zinc-400 leading-relaxed mb-8 text-xs font-mono">
-                    Warning: Hey! This is me, <span class="spoiler" onclick="this.classList.add('revealed')">no</span>. 
+                    Warning: Hey! This is me, <span class="spoiler" onclick="this.classList.add('revealed')">nonoo</span>. 
                     Yes, I know this is link leaking, but, genuinely, who cares?
                     <br><br>
                     Also, this is heavily skidded, before you start laughing.
@@ -219,12 +229,13 @@
                         </div>
                     </div>
                 </div>
-                <!-- Updated GIF Card: No shaders, no darkening, highest layer -->
+                <!-- GIF Card: Undraggable, highest layer -->
                 <div class="proxy-card relative h-[280px] flex items-center justify-center bg-zinc-900 border-white/20 z-[5] group">
                     <img 
                         src="https://i.pinimg.com/originals/35/d9/f6/35d9f643067bdbc5e7e98e3445d834c5.gif" 
                         class="w-full h-full object-cover relative z-10"
                         alt="Background Animation"
+                        draggable="false"
                     >
                 </div>
             </div>
@@ -249,7 +260,6 @@
                 <div class="proxy-card p-8 group">
                     <div class="flex justify-between items-start mb-6">
                         <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
-                            <!-- New Icon for Partnership Request -->
                             <i data-lucide="user-plus" class="w-6 h-6"></i>
                         </div>
                         <span class="text-[8px] font-mono px-2 py-1 bg-white/10 rounded uppercase">Tier 1</span>
@@ -265,14 +275,13 @@
             </div>
         </main>
         
-        <!-- Footer -->
+        <!-- Updated Footer -->
         <footer class="mt-40 pt-12 border-t border-zinc-900 flex flex-col md:flex-row justify-between items-center gap-8 pb-12">
-            <div class="flex flex-col items-center md:items-start gap-2">
-                <p class="text-[9px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Stay Unrestricted</p>
-                <p class="text-[8px] font-mono text-zinc-800">VAULT v4.0.2 // Fuck you ted sarandos</p>
+            <div class="flex items-center gap-3">
+                <img src="https://soggy.cat/static/ssoggycat/main/images/soggycat.webp" alt="Soggy Cat" class="w-6 h-6 rounded-md object-cover grayscale hover:grayscale-0 transition-all" draggable="false">
+                <p class="text-[9px] font-mono text-zinc-500 uppercase tracking-[0.4em]">with <span class="text-white">&lt;3</span> by nonoo</p>
             </div>
             
-            <!-- Credits Button (Corner Popup Trigger) -->
             <div class="relative group">
                 <button onclick="toggleCredits()" class="flex items-center gap-3 px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all group">
                     <i data-lucide="award" class="w-4 h-4"></i>
@@ -285,15 +294,15 @@
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-white/10"></div>
                             <div>
-                                <p class="text-[10px] font-bold">no</p>
-                                <p class="text-[8px] font-mono text-zinc-600">Lead Dev / Skidding</p>
+                                <p class="text-[10px] font-bold">nono</p>
+                                <p class="text-[8px] font-mono text-zinc-600">guy who made it all</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3 opacity-50">
                             <div class="w-8 h-8 rounded-lg bg-white/10"></div>
                             <div>
                                 <p class="text-[10px] font-bold">дзюцу</p>
-                                <p class="text-[8px] font-mono text-zinc-600">Design Visionary</p>
+                                <p class="text-[8px] font-mono text-zinc-600">faggot rando</p>
                             </div>
                         </div>
                     </div>
