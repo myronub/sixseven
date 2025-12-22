@@ -24,23 +24,45 @@
     </script>
 
     <style>
+        /* CRITICAL: Global Custom Cursors */
+        * {
+            cursor: url(https://www.rw-designer.com/cursor-extern.php?id=40779), auto !important;
+        }
+
+        a, button, [role="button"], .spoiler, .nav-tab, input, select, .proxy-card {
+            cursor: url(https://www.rw-designer.com/cursor-extern.php?id=40777), auto !important;
+        }
+
         @layer base {
             :root {
                 --bg: #000000;
-                --card-bg: rgba(8, 8, 8, 0.8);
-                --card-border: rgba(255, 255, 255, 0.04);
+                --card-bg: rgba(10, 10, 10, 0.6);
+                --card-border: rgba(255, 255, 255, 0.05);
                 --accent: #ffffff;
-                --text-muted: #52525b;
             }
 
             body {
                 background-color: var(--bg);
                 color: white;
                 min-height: 100vh;
-                cursor: none;
                 perspective: 2000px;
                 overflow-x: hidden;
+                margin: 0;
             }
+        }
+
+        /* Fixed Follower - Stays with mouse during scroll */
+        #cursor-follower {
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            position: fixed;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: exclusion;
+            will-change: transform;
         }
 
         /* Perspective Grid Background */
@@ -58,7 +80,6 @@
             pointer-events: none;
         }
 
-        /* Noise & Texture */
         .noise {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -68,72 +89,40 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         }
 
-        #custom-cursor {
-            width: 6px;
-            height: 6px;
-            background: white;
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-            mix-blend-mode: difference;
-            transition: transform 0.1s ease-out;
-            box-shadow: 0 0 15px rgba(255,255,255,0.5);
-        }
-
-        /* Advanced Card Styling */
+        /* Proxy Card Styling */
         .proxy-card {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
             border-radius: 16px;
             transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-            transform-style: preserve-3d;
             position: relative;
             overflow: hidden;
         }
 
         .proxy-card:hover {
-            transform: translateY(-12px) scale(1.02);
-            border-color: rgba(255, 255, 255, 0.1);
-            box-shadow: 
-                0 30px 60px -12px rgba(0,0,0,1),
-                0 18px 36px -18px rgba(0,0,0,1),
-                inset 0 0 0 1px rgba(255,255,255,0.05);
+            transform: translateY(-8px);
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(20, 20, 20, 0.8);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
         }
 
-        /* Glass Shine Sweep */
         .shine {
             position: absolute;
             top: -100%; left: -100%;
             width: 300%; height: 300%;
-            background: radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 50%);
+            background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 50%);
             transition: 0s;
             pointer-events: none;
         }
+
         .proxy-card:hover .shine {
             top: -50%; left: -50%;
-            transition: 1s cubic-bezier(0.19, 1, 0.22, 1);
-        }
-
-        /* Floating Shadow Illusion */
-        .proxy-card::before {
-            content: '';
-            position: absolute;
-            bottom: -20px; left: 5%;
-            width: 90%; height: 20px;
-            background: rgba(0,0,0,0.8);
-            filter: blur(15px);
-            opacity: 0;
-            transition: opacity 0.5s;
-            pointer-events: none;
-        }
-        .proxy-card:hover::before {
-            opacity: 1;
+            transition: 1.2s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
         .shimmer-text {
-            background: linear-gradient(180deg, #fff 0%, #333 100%);
+            background: linear-gradient(180deg, #fff 0%, #444 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -142,105 +131,129 @@
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.05);
             transition: all 0.3s ease;
-        }
-        .search-wrapper:focus-within {
-            background: rgba(255,255,255,0.06);
-            border-color: rgba(255,255,255,0.2);
-            box-shadow: 0 0 30px rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
         }
 
-        /* Loading Dots */
+        .search-wrapper:focus-within {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.3);
+            width: 100%;
+        }
+
         .dot-flashing {
             position: relative;
             width: 6px; height: 6px;
             border-radius: 5px;
             background-color: #333;
             animation: dot-flashing 1s infinite linear alternate;
-            animation-delay: 0.5s;
         }
         @keyframes dot-flashing {
             0% { background-color: #333; }
             50%, 100% { background-color: #fff; }
         }
+
+        .view-section {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="p-6 md:p-16">
 
-    <div id="custom-cursor"></div>
+    <div id="cursor-follower"></div>
     <div class="noise"></div>
     <div class="grid-bg" id="gridBg"></div>
 
-    <div class="max-w-5xl mx-auto z-10 relative">
+    <div class="max-w-6xl mx-auto z-10 relative">
         
         <!-- Header -->
-        <header class="flex flex-col md:flex-row items-start md:items-end justify-between mb-20 gap-8">
-            <div class="space-y-4">
-                <a href="/" class="text-[9px] font-mono uppercase tracking-[0.5em] text-zinc-600 hover:text-white transition-all flex items-center gap-3 group">
+        <header class="flex flex-col lg:flex-row items-start lg:items-end justify-between mb-24 gap-12">
+            <div class="space-y-6">
+                <button onclick="window.location.href='/'" class="text-[10px] font-mono uppercase tracking-[0.5em] text-zinc-500 hover:text-white transition-all flex items-center gap-3 group">
                     <i data-lucide="chevron-left" class="w-3 h-3 group-hover:-translate-x-1 transition-transform"></i>
-                    Back to Terminal
-                </a>
-                <h1 class="text-6xl font-black tracking-tighter shimmer-text">Vault</h1>
-                <p class="text-zinc-500 font-medium text-xs uppercase tracking-widest opacity-60">~</p>
+                    Back to Hub
+                </button>
+                <h1 class="text-7xl md:text-9xl font-black tracking-tighter shimmer-text leading-none">VAULT</h1>
+                <div class="flex items-center gap-4">
+                    <div class="h-px w-8 bg-zinc-800"></div>
+                    <p class="text-zinc-500 font-bold text-[10px] uppercase tracking-[0.3em]">Directory v2.0</p>
+                </div>
             </div>
 
-            <!-- Search -->
-            <div class="search-wrapper w-full md:w-80 rounded-full px-6 py-3 flex items-center gap-3">
-                <i data-lucide="command" class="w-4 h-4 text-zinc-700"></i>
-                <input type="text" id="searchInput" placeholder="Search..." class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-zinc-800 text-zinc-300 font-medium">
+            <!-- Enhanced Search -->
+            <div class="search-wrapper w-full lg:w-96 rounded-2xl px-6 py-4 flex items-center gap-4">
+                <i data-lucide="search" class="w-4 h-4 text-zinc-600"></i>
+                <input type="text" id="searchInput" placeholder="Filter mirrors..." class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-zinc-700 text-zinc-200 font-medium">
             </div>
         </header>
 
         <!-- Proxy Grid Container -->
-        <div id="proxyContainer" class="space-y-20 min-h-[40vh]">
-            <div class="flex flex-col items-center gap-4 py-20">
+        <div id="proxyContainer" class="space-y-24 min-h-[50vh]">
+            <div class="flex flex-col items-center gap-6 py-32">
                 <div class="dot-flashing"></div>
-                <span class="text-[10px] font-mono text-zinc-700 uppercase tracking-[0.3em]">Mapping Mirrors</span>
+                <span class="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Deciphering Mirror Nodes</span>
             </div>
         </div>
-        
-        <!-- Minimal Footer -->
-        <footer class="mt-32 pt-12 border-t border-zinc-900/50 flex flex-col md:flex-row justify-between items-center opacity-40 hover:opacity-100 transition-opacity">
+
+        <!-- Footer -->
+        <footer class="mt-48 pt-12 border-t border-zinc-900/50 flex flex-col md:flex-row justify-between items-center gap-8 opacity-50 hover:opacity-100 transition-opacity pb-12">
             <div class="flex items-center gap-6">
-                <p id="vaultStatus" class="text-[9px] font-mono text-zinc-600 uppercase tracking-[0.3em]">System Ready</p>
+                <p id="vaultStatus" class="text-[9px] font-mono text-zinc-500 uppercase tracking-[0.4em]">Initializing Core</p>
+                <div class="w-1 h-1 rounded-full bg-green-500 animate-pulse"></div>
             </div>
-            <div class="flag-counter-wrapper grayscale invert brightness-50">
-                <a href="https://info.flagcounter.com/YmXy"><img src="https://s11.flagcounter.com/mini/YmXy/bg_FFFFFF/txt_000000/border_CCCCCC/flags_0/" alt="Flag Counter" border="0"></a>
+            
+            <div class="flex items-center gap-8">
+                <div class="flag-counter-wrapper grayscale invert brightness-50 opacity-50 hover:opacity-100 transition-all">
+                    <a href="https://info.flagcounter.com/YmXy">
+                        <img src="https://s11.flagcounter.com/mini/YmXy/bg_FFFFFF/txt_000000/border_CCCCCC/flags_0/" alt="Flag Counter" border="0">
+                    </a>
+                </div>
+                <p class="text-[9px] font-mono text-zinc-700 uppercase tracking-widest">&copy; 2024 PROXYVAULT</p>
             </div>
         </footer>
     </div>
 
     <script>
-        // Mouse Tracking for Background and Cursor
-        const cursor = document.getElementById('custom-cursor');
+        const follower = document.getElementById('cursor-follower');
         const grid = document.getElementById('gridBg');
-        
-        document.addEventListener('mousemove', (e) => {
-            const x = e.clientX;
-            const y = e.clientY;
+        const searchInput = document.getElementById('searchInput');
+        let mouseX = 0, mouseY = 0;
+        let followerX = 0, followerY = 0;
+
+        // Global Mouse Tracking
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
             
-            cursor.style.left = x + 'px';
-            cursor.style.top = y + 'px';
-            
-            // Background grid light follow
-            const xPct = (x / window.innerWidth) * 100;
-            const yPct = (y / window.innerHeight) * 100;
+            // Perspective Grid reaction
+            const xPct = (mouseX / window.innerWidth) * 100;
+            const yPct = (mouseY / window.innerHeight) * 100;
             grid.style.setProperty('--mouse-x', xPct + '%');
             grid.style.setProperty('--mouse-y', yPct + '%');
         });
 
-        document.addEventListener('mousedown', () => cursor.style.transform = 'scale(0.5)');
-        document.addEventListener('mouseup', () => cursor.style.transform = 'scale(1)');
+        // Smooth Follower Animation
+        function animateFollower() {
+            followerX += (mouseX - followerX) * 0.15;
+            followerY += (mouseY - followerY) * 0.15;
+            follower.style.transform = `translate3d(${followerX - 10}px, ${followerY - 10}px, 0)`;
+            requestAnimationFrame(animateFollower);
+        }
+        animateFollower();
 
-        lucide.createIcons();
-
-        // Data Fetching
+        // Data Management
         async function loadVault() {
             const container = document.getElementById('proxyContainer');
             const statusText = document.getElementById('vaultStatus');
             
             try {
+                // Mocking the fetch for /thelist.txt as per original logic
                 const response = await fetch('/thelist.txt');
-                if (!response.ok) throw new Error();
+                if (!response.ok) throw new Error("File not found");
                 const text = await response.text();
                 
                 const lines = text.split('\n');
@@ -261,9 +274,14 @@
                 if (currentGroup) groups.push(currentGroup);
 
                 renderVault(groups);
-                statusText.innerText = `${groups.length} Groups Verified`;
+                statusText.innerText = `${groups.length} SECTORS VERIFIED`;
             } catch (err) {
-                container.innerHTML = `<div class="text-[10px] font-mono text-zinc-800 text-center py-20 uppercase tracking-widest">Connection Error: List Not Found</div>`;
+                container.innerHTML = `
+                    <div class="text-[10px] font-mono text-zinc-800 text-center py-32 uppercase tracking-[0.5em] border border-dashed border-zinc-900 rounded-3xl">
+                        CRITICAL ERROR: DATA_LINK_BROKEN
+                    </div>
+                `;
+                statusText.innerText = "";
             }
         }
 
@@ -271,39 +289,47 @@
             const container = document.getElementById('proxyContainer');
             container.innerHTML = '';
 
-            groups.forEach(group => {
+            groups.forEach((group, index) => {
                 const groupEl = document.createElement('section');
-                groupEl.className = 'group-section space-y-8';
+                groupEl.className = 'group-section space-y-10 view-section';
+                groupEl.style.animationDelay = `${index * 0.1}s`;
                 
                 const itemsHtml = group.items.map(item => {
                     const cleanUrl = item.startsWith('http') ? item : `https://${item}`;
                     const displayUrl = item.replace(/^https?:\/\//, '').split('/')[0];
                     
                     return `
-                        <div class="proxy-card p-8 group cursor-pointer" onclick="window.open('${cleanUrl}', '_blank')">
+                        <div class="proxy-card p-8 group" onclick="window.open('${cleanUrl}', '_blank')">
                             <div class="shine"></div>
                             
-                            <div class="flex justify-between items-center mb-10">
-                                <div class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-600 group-hover:text-white group-hover:border-zinc-500 transition-all">
-                                    <i data-lucide="link" class="w-4 h-4"></i>
+                            <div class="flex justify-between items-start mb-12">
+                                <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-500 group-hover:text-white group-hover:border-white/30 transition-all duration-500">
+                                    <i data-lucide="globe" class="w-5 h-5"></i>
                                 </div>
-                                <div class="opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <i data-lucide="external-link" class="w-3 h-3 text-zinc-500"></i>
+                                <div class="px-2 py-1 rounded bg-white/5 border border-white/5 text-[8px] font-mono text-zinc-600 uppercase tracking-widest group-hover:text-zinc-300 transition-colors">
+                                    Encrypted
                                 </div>
                             </div>
 
-                            <div class="space-y-1">
-                                <h3 class="text-xl font-extrabold tracking-tight text-zinc-200 group-hover:text-white transition-colors">${displayUrl}</h3>
-                                <p class="text-[9px] font-mono text-zinc-700 group-hover:text-zinc-500 transition-colors uppercase tracking-[0.2em]">Live Node</p>
+                            <div class="space-y-2">
+                                <h3 class="text-xl font-black tracking-tight text-zinc-300 group-hover:text-white transition-colors">${displayUrl}</h3>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-green-500/40 group-hover:bg-green-400 transition-colors"></div>
+                                    <p class="text-[9px] font-mono text-zinc-700 uppercase tracking-[0.2em] group-hover:text-zinc-500 transition-colors">Active Link</p>
+                                </div>
                             </div>
                         </div>
                     `;
                 }).join('');
 
                 groupEl.innerHTML = `
-                    <div class="flex items-center gap-6 mb-8">
-                        <h2 class="text-[10px] font-mono uppercase tracking-[0.5em] font-black text-zinc-800 hover:text-zinc-600 transition-colors cursor-default">${group.name}</h2>
-                        <div class="h-[1px] flex-grow bg-zinc-900"></div>
+                    <div class="flex items-center gap-8 mb-4">
+                        <div class="flex flex-col">
+                            <h2 class="text-[11px] font-black uppercase tracking-[0.6em] text-zinc-700">${group.name}</h2>
+                            <div class="h-0.5 w-1/2 bg-zinc-900 mt-2"></div>
+                        </div>
+                        <div class="h-px flex-grow bg-zinc-900/50"></div>
+                        <span class="text-[9px] font-mono text-zinc-800 uppercase tracking-widest">${group.items.length} Nodes</span>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         ${itemsHtml}
@@ -314,21 +340,31 @@
             lucide.createIcons();
         }
 
-        // Simple Filter
-        document.getElementById('searchInput').addEventListener('input', (e) => {
+        // Search Filter Logic
+        searchInput.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
             document.querySelectorAll('.proxy-card').forEach(card => {
                 const text = card.innerText.toLowerCase();
-                card.closest('div').style.display = text.includes(term) ? 'block' : 'none';
+                const parent = card.parentElement;
+                if (text.includes(term)) {
+                    parent.style.display = 'block';
+                    parent.style.opacity = '1';
+                } else {
+                    parent.style.display = 'none';
+                    parent.style.opacity = '0';
+                }
             });
+
+            // Hide sections with no visible results
             document.querySelectorAll('.group-section').forEach(section => {
                 const visible = section.querySelectorAll('.proxy-card:not([style*="display: none"])');
                 section.style.display = visible.length > 0 ? 'block' : 'none';
             });
         });
 
+        // Initialize
         loadVault();
+        lucide.createIcons();
     </script>
 </body>
 </html>
-
