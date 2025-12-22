@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>proxyvau.lt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        zinc: {
+                            950: '#09090b',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 1s ease-out forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @layer base {
+            :root {
+                --bg: #000000;
+                --card-bg: rgba(8, 8, 8, 0.8);
+                --card-border: rgba(255, 255, 255, 0.04);
+                --accent: #ffffff;
+                --text-muted: #52525b;
+            }
+
+            /* Global Cursor Hide */
+            html, body, a, button, input {
+                cursor: none !important;
+            }
+
+            body {
+                background-color: var(--bg);
+                color: white;
+                min-height: 100vh;
+                perspective: 2000px;
+                overflow-x: hidden;
+            }
+        }
+
+        /* Enhanced Fixed Cursor */
+        #custom-cursor {
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: exclusion;
+            transition: transform 0.05s linear;
+            box-shadow: 0 0 15px rgba(255,255,255,0.8);
+            will-change: transform;
+            backdrop-filter: invert(1);
+            border: 1px solid white;
+        }
+
+        .grid-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black, transparent 80%);
+            z-index: -1;
+            transform: rotateX(45deg) translateY(-20%) scale(2);
+            transform-origin: top;
+            pointer-events: none;
+        }
+
+        .noise {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: .015;
+            z-index: 1000;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        .proxy-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            transform-style: preserve-3d;
+        }
+
+        .shimmer-text {
+            background: linear-gradient(180deg, #fff 0%, #333 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .episode-btn {
+            width: 100%;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: all 0.2s ease;
+        }
+        .episode-btn:hover {
+            background: rgba(255,255,255,0.03);
+            padding-left: 0.5rem;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+
+        .player-frame {
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+            aspect-ratio: 16/9;
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .dot-flashing {
+            position: relative;
+            width: 6px; height: 6px;
+            border-radius: 5px;
+            background-color: #fff;
+            animation: dot-flashing 1s infinite linear alternate;
+        }
+        @keyframes dot-flashing { 0% { opacity: 0.2; } 100% { opacity: 1; } }
+
+        #seasonTabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap; 
+            justify-content: flex-end;
+            max-width: 60%;
+        }
+    </style>
+</head>
+<body class="p-6 md:p-16">
+
+    <div id="custom-cursor"></div>
+    <div class="noise"></div>
+    <div class="grid-bg" id="gridBg"></div>
+
+    <div class="max-w-6xl mx-auto z-10 relative">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row items-start md:items-end justify-between mb-16 gap-8">
+            <div class="space-y-4">
+                <a href="/" class="text-[9px] font-mono uppercase tracking-[0.5em] text-zinc-600 hover:text-white transition-all flex items-center gap-3">
+                    <i data-lucide="chevron-left" class="w-3 h-3"></i>
+                    Return
+                </a>
+                <h1 class="text-6xl font-black tracking-tighter shimmer-text">Movies</h1>
+                
+                <div class="text-[10px] font-mono text-zinc-500 uppercase tracking-[0.4em] mt-8">
+                    movies
+                </div>
+            </div>
+        </header>
+
+        <!-- Media View (Now Primary) -->
+        <div id="mediaContainer" class="view-section space-y-12 min-h-[40vh]">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Left: Search & Discovery -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="proxy-card p-6 space-y-6">
+                        <div class="space-y-3">
+                            <label class="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Search Metadata</label>
+                            <div class="relative">
+                                <input type="text" id="mediaQuery" placeholder="Show or Movie Name..." class="w-full bg-white/5 border border-white/10 rounded-lg pl-4 pr-10 py-3 text-sm focus:outline-none focus:border-white/20">
+                                <button onclick="searchMedia()" class="absolute right-3 top-3 text-zinc-500 hover:text-white">
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="searchResults" class="space-y-2 max-h-60 overflow-y-auto hidden">
+                            <!-- Results go here -->
+                        </div>
+
+                        <div id="activeMeta" class="pt-6 border-t border-white/5 space-y-4 hidden">
+                            <div class="aspect-[2/3] rounded-lg bg-zinc-900 border border-white/5 overflow-hidden">
+                                <img id="metaPoster" src="" class="w-full h-full object-cover opacity-80" alt="Poster">
+                            </div>
+                            <div>
+                                <h2 id="metaTitle" class="text-xl font-bold tracking-tight">--</h2>
+                                <p id="metaId" class="text-[9px] font-mono text-zinc-600">ID: --</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Content Browser -->
+                <div class="lg:col-span-8 space-y-6">
+                    <div id="playerSpace" class="hidden">
+                        <div id="playerFrame" class="player-frame flex items-center justify-center">
+                            <!-- Content injected here -->
+                        </div>
+                    </div>
+
+                    <div class="proxy-card p-8 h-full">
+                        <div class="flex items-center justify-between mb-8">
+                            <h2 class="text-[10px] font-mono uppercase tracking-[0.4em] text-zinc-500">Seasons</h2>
+                            <div id="seasonTabs"></div>
+                        </div>
+
+                        <div id="episodeGrid" class="space-y-1 max-h-[500px] overflow-y-auto pr-2">
+                            <div class="py-20 text-center opacity-20">
+                                <i data-lucide="database" class="w-8 h-8 mx-auto mb-4"></i>
+                                <p class="text-[10px] font-mono uppercase tracking-widest">Waiting..</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="mt-32 pt-12 border-t border-zinc-900/50 flex flex-col md:flex-row justify-between items-center opacity-40">
+            <p id="vaultStatus" class="text-[9px] font-mono text-zinc-600 uppercase tracking-[0.3em]">Fuck you ted sarandos</p>
+            <div class="grayscale invert brightness-50">
+                <a href="https://info.flagcounter.com/YmXy"><img src="https://s11.flagcounter.com/mini/YmXy/bg_FFFFFF/txt_000000/border_CCCCCC/flags_0/" alt="Flag Counter"></a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Global State
+        let currentImdbId = '';
+
+        // --- Fixed Cursor Logic ---
+        const cursor = document.getElementById('custom-cursor');
+        const grid = document.getElementById('gridBg');
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            const xPct = (mouseX / window.innerWidth) * 100;
+            const yPct = (mouseY / window.innerHeight) * 100;
+            grid.style.setProperty('--mouse-x', xPct + '%');
+            grid.style.setProperty('--mouse-y', yPct + '%');
+        });
+
+        function animateCursor() {
+            let dx = mouseX - cursorX;
+            let dy = mouseY - cursorY;
+            cursorX += dx * 0.2;
+            cursorY += dy * 0.2;
+            cursor.style.transform = `translate3d(${cursorX - 10}px, ${cursorY - 10}px, 0)`;
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // --- Media Discovery Logic ---
+        async function searchMedia() {
+            const query = document.getElementById('mediaQuery').value;
+            if (!query) return;
+
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.classList.remove('hidden');
+            resultsDiv.innerHTML = '<div class="p-4 text-center"><div class="dot-flashing mx-auto"></div></div>';
+
+            try {
+                const res = await fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                
+                resultsDiv.innerHTML = data.map(item => `
+                    <button onclick="selectShow(${item.show.id}, '${item.show.externals.imdb}')" class="w-full p-3 text-left bg-white/5 hover:bg-white/10 rounded transition-all flex items-center justify-between group">
+                        <span class="text-xs font-bold text-zinc-400 group-hover:text-white">${item.show.name}</span>
+                        <span class="text-[9px] font-mono text-zinc-700">${item.show.premiered?.split('-')[0] || 'N/A'}</span>
+                    </button>
+                `).join('');
+            } catch (e) {
+                resultsDiv.innerHTML = '<p class="text-[9px] font-mono text-red-900 p-4">Uplink Failed</p>';
+            }
+        }
+
+        async function selectShow(id, imdbId) {
+            currentImdbId = imdbId;
+            document.getElementById('searchResults').classList.add('hidden');
+            const metaDiv = document.getElementById('activeMeta');
+            metaDiv.classList.remove('hidden');
+
+            try {
+                const res = await fetch(`https://api.tvmaze.com/shows/${id}?embed=episodes`);
+                const show = await res.json();
+
+                document.getElementById('metaTitle').innerText = show.name;
+                document.getElementById('metaId').innerText = `IMDB: ${imdbId || 'N/A'}`;
+                document.getElementById('metaPoster').src = show.image?.medium || '';
+
+                const episodes = show._embedded.episodes;
+                const seasons = [...new Set(episodes.map(e => e.season))];
+                
+                const tabs = document.getElementById('seasonTabs');
+                tabs.innerHTML = seasons.map(s => `
+                    <button onclick="renderEpisodes(${JSON.stringify(episodes).replace(/"/g, '&quot;')}, ${s})" class="px-3 py-1 text-[10px] font-mono border border-white/5 hover:border-white/20 hover:bg-white/5 transition-colors rounded mb-1">S${s}</button>
+                `).join('');
+
+                renderEpisodes(episodes, 1);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderEpisodes(allEpisodes, season) {
+            const grid = document.getElementById('episodeGrid');
+            const filtered = allEpisodes.filter(e => e.season === season);
+
+            grid.innerHTML = filtered.map(ep => `
+                <button onclick="playEpisode(${season}, ${ep.number})" class="episode-btn p-4 flex flex-col gap-1 group">
+                    <div class="flex justify-between items-center w-full">
+                        <span class="text-xs font-bold text-zinc-300 group-hover:text-white">E${ep.number}: ${ep.name}</span>
+                        <i data-lucide="play" class="w-3 h-3 text-zinc-700 group-hover:text-white opacity-0 group-hover:opacity-100 transition-all"></i>
+                    </div>
+                    <p class="text-[10px] text-zinc-600 line-clamp-1 group-hover:text-zinc-400 transition-colors">
+                        ${ep.summary ? ep.summary.replace(/<[^>]*>/g, '') : 'No description available.'}
+                    </p>
+                </button>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function playEpisode(season, episode) {
+            const playerSpace = document.getElementById('playerSpace');
+            const frame = document.getElementById('playerFrame');
+            
+            playerSpace.classList.remove('hidden');
+            playerSpace.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            frame.innerHTML = `
+                <div class="flex flex-col items-center animate-fade-in">
+                    <div class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center mb-4">
+                        <i data-lucide="smile" class="w-6 h-6 text-white animate-pulse"></i>
+                    </div>
+                    <h3 class="text-xl font-bold tracking-tight text-white mb-1">Happy Watching!</h3>
+                    <p class="text-[9px] font-mono text-zinc-500 uppercase tracking-widest">Initializing Secure Stream</p>
+                </div>
+            `;
+            lucide.createIcons();
+
+            setTimeout(() => {
+                if(!currentImdbId) {
+                    frame.innerHTML = `<p class="text-xs text-red-500 font-mono">Error: Missing IMDB ID</p>`;
+                    return;
+                }
+                const url = `https://vidsrc-embed.ru/embed/tv?imdb=${currentImdbId}&season=${season}&episode=${episode}`;
+                frame.innerHTML = `
+                    <iframe 
+                        src="${url}" 
+                        style="width: 100%; height: 100%;" 
+                        frameborder="0" 
+                        referrerpolicy="origin" 
+                        allowfullscreen>
+                    </iframe>
+                `;
+            }, 2500);
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
