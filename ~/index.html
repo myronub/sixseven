@@ -29,7 +29,7 @@
             cursor: url(https://www.rw-designer.com/cursor-extern.php?id=40779), auto !important;
         }
 
-        a, button, [role="button"], .spoiler, .nav-tab, input, select, .proxy-card {
+        a, button, [role="button"], .spoiler, .nav-tab, input, select, .proxy-card, .filter-item {
             cursor: url(https://www.rw-designer.com/cursor-extern.php?id=40777), auto !important;
         }
 
@@ -51,7 +51,6 @@
             }
         }
 
-        /* Fixed Follower - Stays with mouse during scroll */
         #cursor-follower {
             width: 20px;
             height: 20px;
@@ -65,7 +64,6 @@
             will-change: transform;
         }
 
-        /* Perspective Grid Background */
         .grid-bg {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -89,7 +87,6 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         }
 
-        /* Proxy Card Styling */
         .proxy-card {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
@@ -127,17 +124,85 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .search-wrapper {
+        /* Modern Filter Dropdown Styling */
+        .filter-dropdown {
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.05);
-            transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .filter-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 240px;
+            background: #0a0a0a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            z-index: 50;
+            margin-top: 8px;
+            max-height: 400px;
+            overflow-y: auto;
         }
 
-        .search-wrapper:focus-within {
-            background: rgba(255,255,255,0.06);
-            border-color: rgba(255,255,255,0.3);
-            width: 100%;
+        .filter-menu.show { display: block; }
+
+        .filter-item {
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #71717a;
+            transition: all 0.2s;
+        }
+
+        .filter-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: white;
+        }
+
+        .filter-item.selected {
+            color: white;
+        }
+
+        .filter-checkbox {
+            width: 14px;
+            height: 14px;
+            border: 1px solid #3f3f46;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .filter-item.selected .filter-checkbox {
+            background: white;
+            border-color: white;
+        }
+
+        .filter-item.selected .filter-checkbox::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: black;
+            border-radius: 1px;
+        }
+
+        .active-filter-tag {
+            background: white;
+            color: black;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 800;
         }
 
         .dot-flashing {
@@ -170,7 +235,6 @@
 
     <div class="max-w-6xl mx-auto z-10 relative">
         
-        <!-- Header -->
         <header class="flex flex-col lg:flex-row items-start lg:items-end justify-between mb-24 gap-12">
             <div class="space-y-6">
                 <button onclick="window.location.href='/'" class="text-[10px] font-mono uppercase tracking-[0.5em] text-zinc-500 hover:text-white transition-all flex items-center gap-3 group">
@@ -180,26 +244,54 @@
                 <h1 class="text-7xl md:text-9xl font-black tracking-tighter shimmer-text leading-none">VAULT</h1>
                 <div class="flex items-center gap-4">
                     <div class="h-px w-8 bg-zinc-800"></div>
-                    <p class="text-zinc-500 font-bold text-[10px] uppercase tracking-[0.3em]">:)</p>
+                    <p class="text-zinc-500 font-bold text-[10px] uppercase tracking-[0.3em]">Directory v2.3</p>
                 </div>
             </div>
 
-            <!-- Enhanced Search -->
-            <div class="search-wrapper w-full lg:w-96 rounded-2xl px-6 py-4 flex items-center gap-4">
-                <i data-lucide="search" class="w-4 h-4 text-zinc-600"></i>
-                <input type="text" id="searchInput" placeholder="Filter mirrors..." class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-zinc-700 text-zinc-200 font-medium">
+            <div class="w-full lg:w-[480px] space-y-4">
+                <div class="flex items-stretch gap-3">
+                    <div class="flex-grow search-wrapper rounded-2xl px-6 py-4 flex items-center gap-4">
+                        <i data-lucide="search" class="w-4 h-4 text-zinc-600"></i>
+                        <input type="text" id="searchInput" placeholder="Search mirrors..." class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-zinc-700 text-zinc-200 font-medium">
+                    </div>
+                    
+                    <!-- Multi-Select Blocker Filter -->
+                    <div class="relative">
+                        <button id="filterBtn" class="filter-dropdown h-full rounded-2xl px-6 flex items-center gap-3 text-[10px] font-mono uppercase tracking-widest text-zinc-400 hover:text-white hover:border-zinc-500 transition-all">
+                            <i data-lucide="filter" class="w-4 h-4"></i>
+                            <span id="filterLabel">Blockers</span>
+                            <span id="activeCount" class="hidden active-filter-tag">0</span>
+                        </button>
+                        
+                        <div id="filterMenu" class="filter-menu">
+                            <div class="p-4 border-b border-zinc-900 bg-zinc-950/50">
+                                <span class="text-[9px] font-mono text-zinc-500 uppercase tracking-widest">Select Blockers</span>
+                            </div>
+                            <div id="filterOptions">
+                                <div class="filter-item" data-tag="lightspeed"><div class="filter-checkbox"></div>Lightspeed</div>
+                                <div class="filter-item" data-tag="fortiguard"><div class="filter-checkbox"></div>Fortiguard</div>
+                                <div class="filter-item" data-tag="palo_alto"><div class="filter-checkbox"></div>Palo Alto</div>
+                                <div class="filter-item" data-tag="blocksi"><div class="filter-checkbox"></div>Blocksi</div>
+                                <div class="filter-item" data-tag="goguardian"><div class="filter-checkbox"></div>GoGuardian</div>
+                                <div class="filter-item" data-tag="securly"><div class="filter-checkbox"></div>Securly</div>
+                                <div class="filter-item" data-tag="linewize"><div class="filter-checkbox"></div>Linewize</div>
+                                <div class="filter-item" data-tag="contentkeeper"><div class="filter-checkbox"></div>ContentKeeper</div>
+                                <div class="filter-item" data-tag="cisco_talos"><div class="filter-checkbox"></div>Cisco Talos</div>
+                            </div>
+                            <button id="clearFilters" class="w-full p-4 border-t border-zinc-900 text-[9px] font-mono text-zinc-600 hover:text-white uppercase tracking-widest text-center">Clear All</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
 
-        <!-- Proxy Grid Container -->
         <div id="proxyContainer" class="space-y-24 min-h-[50vh]">
             <div class="flex flex-col items-center gap-6 py-32">
                 <div class="dot-flashing"></div>
-                <span class="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">searching/span>
+                <span class="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Deciphering Mirror Nodes</span>
             </div>
         </div>
 
-        <!-- Footer -->
         <footer class="mt-48 pt-12 border-t border-zinc-900/50 flex flex-col md:flex-row justify-between items-center gap-8 opacity-50 hover:opacity-100 transition-opacity pb-12">
             <div class="flex items-center gap-6">
                 <p id="vaultStatus" class="text-[9px] font-mono text-zinc-500 uppercase tracking-[0.4em]">Initializing Core</p>
@@ -221,22 +313,22 @@
         const follower = document.getElementById('cursor-follower');
         const grid = document.getElementById('gridBg');
         const searchInput = document.getElementById('searchInput');
-        let mouseX = 0, mouseY = 0;
-        let followerX = 0, followerY = 0;
+        const proxyContainer = document.getElementById('proxyContainer');
+        const filterBtn = document.getElementById('filterBtn');
+        const filterMenu = document.getElementById('filterMenu');
+        const activeCountDisplay = document.getElementById('activeCount');
+        
+        let mouseX = 0, mouseY = 0, followerX = 0, followerY = 0;
+        let selectedTags = new Set();
 
-        // Global Mouse Tracking
         window.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            
-            // Perspective Grid reaction
+            mouseX = e.clientX; mouseY = e.clientY;
             const xPct = (mouseX / window.innerWidth) * 100;
             const yPct = (mouseY / window.innerHeight) * 100;
             grid.style.setProperty('--mouse-x', xPct + '%');
             grid.style.setProperty('--mouse-y', yPct + '%');
         });
 
-        // Smooth Follower Animation
         function animateFollower() {
             followerX += (mouseX - followerX) * 0.15;
             followerY += (mouseY - followerY) * 0.15;
@@ -245,13 +337,52 @@
         }
         animateFollower();
 
-        // Data Management
+        // Toggle Filter Menu
+        filterBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            filterMenu.classList.toggle('show');
+        });
+
+        window.addEventListener('click', () => filterMenu.classList.remove('show'));
+        filterMenu.addEventListener('click', (e) => e.stopPropagation());
+
+        // Handle Tag Selection
+        document.querySelectorAll('.filter-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const tag = item.getAttribute('data-tag');
+                if (selectedTags.has(tag)) {
+                    selectedTags.delete(tag);
+                    item.classList.remove('selected');
+                } else {
+                    selectedTags.add(tag);
+                    item.classList.add('selected');
+                }
+                updateFilterUI();
+            });
+        });
+
+        document.getElementById('clearFilters').addEventListener('click', () => {
+            selectedTags.clear();
+            document.querySelectorAll('.filter-item').forEach(i => i.classList.remove('selected'));
+            updateFilterUI();
+        });
+
+        function updateFilterUI() {
+            const count = selectedTags.size;
+            if (count > 0) {
+                activeCountDisplay.innerText = count;
+                activeCountDisplay.classList.remove('hidden');
+                document.getElementById('filterLabel').innerText = "Filtered";
+            } else {
+                activeCountDisplay.classList.add('hidden');
+                document.getElementById('filterLabel').innerText = "Blockers";
+            }
+            applyFilters();
+        }
+
         async function loadVault() {
-            const container = document.getElementById('proxyContainer');
             const statusText = document.getElementById('vaultStatus');
-            
             try {
-                // Mocking the fetch for /thelist.txt as per original logic
                 const response = await fetch('/thelist.txt');
                 if (!response.ok) throw new Error("File not found");
                 const text = await response.text();
@@ -268,7 +399,10 @@
                         if (currentGroup) groups.push(currentGroup);
                         currentGroup = { name: trimmed.replace('- ', ''), items: [] };
                     } else if (currentGroup) {
-                        currentGroup.items.push(trimmed);
+                        const parts = trimmed.split('|');
+                        const url = parts[0].trim();
+                        const tags = parts[1] ? parts[1].split(',').map(t => t.trim().toLowerCase().replace(/\s+/g, '_')) : [];
+                        currentGroup.items.push({ url, tags });
                     }
                 });
                 if (currentGroup) groups.push(currentGroup);
@@ -276,46 +410,40 @@
                 renderVault(groups);
                 statusText.innerText = `${groups.length} SECTORS VERIFIED`;
             } catch (err) {
-                container.innerHTML = `
-                    <div class="text-[10px] font-mono text-zinc-800 text-center py-32 uppercase tracking-[0.5em] border border-dashed border-zinc-900 rounded-3xl">
-                        CRITICAL ERROR: DATA_LINK_BROKEN
-                    </div>
-                `;
-                statusText.innerText = "";
+                proxyContainer.innerHTML = `<div class="text-[10px] font-mono text-zinc-800 text-center py-32 uppercase tracking-[0.5em] border border-dashed border-zinc-900 rounded-3xl">CRITICAL ERROR: DATA_LINK_BROKEN</div>`;
             }
         }
 
         function renderVault(groups) {
-            const container = document.getElementById('proxyContainer');
-            container.innerHTML = '';
-
+            proxyContainer.innerHTML = '';
             groups.forEach((group, index) => {
                 const groupEl = document.createElement('section');
                 groupEl.className = 'group-section space-y-10 view-section';
                 groupEl.style.animationDelay = `${index * 0.1}s`;
                 
                 const itemsHtml = group.items.map(item => {
-                    const cleanUrl = item.startsWith('http') ? item : `https://${item}`;
-                    const displayUrl = item.replace(/^https?:\/\//, '').split('/')[0];
+                    const cleanUrl = item.url.startsWith('http') ? item.url : `https://${item.url}`;
+                    const displayUrl = item.url.replace(/^https?:\/\//, '').split('/')[0];
+                    const tagsData = item.tags.join(' ');
                     
                     return `
-                        <div class="proxy-card p-8 group" onclick="window.open('${cleanUrl}', '_blank')">
+                        <div class="proxy-card p-8 group" 
+                             data-tags="${tagsData}" 
+                             onclick="window.open('${cleanUrl}', '_blank')">
                             <div class="shine"></div>
-                            
                             <div class="flex justify-between items-start mb-12">
-                                <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-500 group-hover:text-white group-hover:border-white/30 transition-all duration-500">
+                                <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-500 group-hover:text-white transition-all">
                                     <i data-lucide="globe" class="w-5 h-5"></i>
                                 </div>
-                                <div class="px-2 py-1 rounded bg-white/5 border border-white/5 text-[8px] font-mono text-zinc-600 uppercase tracking-widest group-hover:text-zinc-300 transition-colors">
-                                    working
+                                <div class="flex flex-col items-end gap-1.5">
+                                    ${item.tags.map(tag => `<span class="px-2 py-0.5 rounded-md bg-white/5 border border-white/5 text-[7px] font-mono text-zinc-600 uppercase tracking-widest group-hover:text-zinc-400 transition-colors">${tag.replace(/_/g, ' ')}</span>`).join('')}
                                 </div>
                             </div>
-
                             <div class="space-y-2">
                                 <h3 class="text-xl font-black tracking-tight text-zinc-300 group-hover:text-white transition-colors">${displayUrl}</h3>
                                 <div class="flex items-center gap-2">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-green-500/40 group-hover:bg-green-400 transition-colors"></div>
-                                    <p class="text-[9px] font-mono text-zinc-700 uppercase tracking-[0.2em] group-hover:text-zinc-500 transition-colors">Active Link</p>
+                                    <div class="w-1 h-1 rounded-full bg-green-500/50"></div>
+                                    <p class="text-[9px] font-mono text-zinc-700 uppercase tracking-[0.2em] group-hover:text-zinc-500 transition-colors">Active Node</p>
                                 </div>
                             </div>
                         </div>
@@ -324,48 +452,55 @@
 
                 groupEl.innerHTML = `
                     <div class="flex items-center gap-8 mb-4">
-                        <div class="flex flex-col">
-                            <h2 class="text-[11px] font-black uppercase tracking-[0.6em] text-zinc-700">${group.name}</h2>
-                            <div class="h-0.5 w-1/2 bg-zinc-900 mt-2"></div>
-                        </div>
+                        <h2 class="text-[11px] font-black uppercase tracking-[0.6em] text-zinc-700">${group.name}</h2>
                         <div class="h-px flex-grow bg-zinc-900/50"></div>
-                        <span class="text-[9px] font-mono text-zinc-800 uppercase tracking-widest">${group.items.length} Links</span>
+                        <span class="text-[9px] font-mono text-zinc-800 uppercase tracking-widest">${group.items.length} Mirrors</span>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         ${itemsHtml}
                     </div>
                 `;
-                container.appendChild(groupEl);
+                proxyContainer.appendChild(groupEl);
             });
             lucide.createIcons();
+            applyFilters();
         }
 
-        // Search Filter Logic
-        searchInput.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
             document.querySelectorAll('.proxy-card').forEach(card => {
                 const text = card.innerText.toLowerCase();
+                const cardTags = card.getAttribute('data-tags').split(' ').filter(t => t);
+                
+                const matchesSearch = text.includes(searchTerm);
+                
+                // MULTI-BLOCKER LOGIC:
+                // If the user selects multiple blockers, show mirrors that bypass ALL of them.
+                // If no filters selected, show all.
+                let matchesTags = true;
+                if (selectedTags.size > 0) {
+                    matchesTags = [...selectedTags].every(tag => cardTags.includes(tag));
+                }
+                
                 const parent = card.parentElement;
-                if (text.includes(term)) {
+                if (matchesSearch && matchesTags) {
                     parent.style.display = 'block';
-                    parent.style.opacity = '1';
                 } else {
                     parent.style.display = 'none';
-                    parent.style.opacity = '0';
                 }
             });
 
-            // Hide sections with no visible results
             document.querySelectorAll('.group-section').forEach(section => {
                 const visible = section.querySelectorAll('.proxy-card:not([style*="display: none"])');
                 section.style.display = visible.length > 0 ? 'block' : 'none';
             });
-        });
+        }
 
-        // Initialize
+        searchInput.addEventListener('input', applyFilters);
+
         loadVault();
         lucide.createIcons();
     </script>
 </body>
 </html>
-
