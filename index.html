@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>proxyvau.lt</title>
+    <title>proxyvau.lt / Home</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,6 +18,25 @@
                         sans: ['Inter', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
                     },
+                    colors: {
+                        zinc: {
+                            950: '#09090b',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 1s ease-out forwards',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
                 }
             }
         }
@@ -26,246 +45,309 @@
     <style>
         @layer base {
             :root {
-                --bg: #030303;
-                --card-bg: rgba(15, 15, 15, 0.6);
-                --card-border: rgba(255, 255, 255, 0.08);
-                --accent: #ffffff;
-                --text-muted: #888888;
+                --bg: #000000;
+                --card-bg: rgba(8, 8, 8, 0.6);
+                --card-border: rgba(255, 255, 255, 0.04);
+            }
+
+            html, body, a, button {
+                cursor: none !important;
             }
 
             body {
                 background-color: var(--bg);
                 color: white;
                 min-height: 100vh;
-                cursor: none;
-                overflow: hidden;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                perspective: 1000px;
+                overflow-x: hidden;
             }
         }
 
-        /* Animated Background Blobs */
-        .blob {
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 70%);
+        #custom-cursor {
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.8);
             border-radius: 50%;
-            z-index: -1;
-            filter: blur(80px);
-            animation: move 20s infinite alternate;
-        }
-        .blob-2 {
-            background: radial-gradient(circle, rgba(100,100,255,0.02) 0%, rgba(255,255,255,0) 70%);
-            animation-delay: -5s;
-            width: 600px;
-            height: 600px;
-        }
-        @keyframes move {
-            from { transform: translate(-20%, -20%); }
-            to { transform: translate(20%, 20%); }
+            position: fixed;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: exclusion;
+            transition: transform 0.05s linear;
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+            will-change: transform;
         }
 
-        /* Noise Texture Overlay */
+        .grid-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
         .noise {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            content: "";
-            opacity: .03;
+            opacity: .015;
             z-index: 1000;
             pointer-events: none;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3仿真%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         }
 
-        #custom-cursor {
-            width: 10px;
-            height: 10px;
-            background: white;
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-            mix-blend-mode: difference;
-            transition: transform 0.15s ease-out;
-        }
-
-        .container-box {
-            width: 100%;
-            max-width: 500px;
-            padding: 2rem;
-            text-align: center;
-            z-index: 10;
-        }
-
-        /* 3D Glass Card */
-        .nav-link {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .proxy-card {
             background: var(--card-bg);
-            backdrop-filter: blur(12px) saturate(180%);
+            backdrop-filter: blur(12px);
             border: 1px solid var(--card-border);
-            padding: 1.25rem 1.75rem;
-            border-radius: 20px;
-            margin-bottom: 1.25rem;
+            border-radius: 24px;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-decoration: none;
-            position: relative;
             overflow: hidden;
-            transform-style: preserve-3d;
         }
 
-        .nav-link:hover {
-            border-color: rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.05);
-            transform: translateY(-5px) rotateX(5deg) rotateY(-2deg);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(255,255,255,0.05);
+        .proxy-card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.02);
+            background: rgba(12, 12, 12, 0.8);
         }
 
-        /* Shine Effect */
-        .nav-link::after {
-            content: "";
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            transition: 0.5s;
-        }
-        .nav-link:hover::after {
-            left: 100%;
-        }
-
-        .logo-text {
-            font-size: 3.5rem;
-            font-weight: 900;
-            letter-spacing: -0.06em;
-            margin-bottom: 0.25rem;
-            background: linear-gradient(180deg, #fff 0%, #888 100%);
+        .shimmer-text {
+            background: linear-gradient(180deg, #fff 0%, #444 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
         }
 
-        .tagline {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            font-weight: 600;
+        .nav-tab {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: 0.3em;
-            margin-bottom: 4rem;
-            opacity: 0.6;
+            letter-spacing: 0.2em;
+            padding: 8px 16px;
+            border-radius: 99px;
+            transition: all 0.3s ease;
+            color: #52525b;
         }
 
-        .nav-title {
-            font-size: 1.125rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            transition: letter-spacing 0.3s ease;
-        }
-        .nav-link:hover .nav-title {
-            letter-spacing: 0.05em;
+        .nav-tab.active {
+            color: white;
+            background: rgba(255,255,255,0.05);
         }
 
-        .footer-minimal {
-            position: fixed;
-            bottom: 2rem;
-            width: 100%;
-            text-align: center;
-        }
-
-        .flag-counter-wrapper {
-            display: inline-block;
-            filter: grayscale(1) invert(1) brightness(0.5);
-            opacity: 0.3;
-            transition: all 0.5s ease;
-            transform: scale(0.9);
-        }
-
-        .flag-counter-wrapper:hover {
-            opacity: 1;
-            filter: grayscale(0) invert(0) brightness(1);
-            transform: scale(1);
-        }
-
-        /* Micro-Underline */
-        .animated-underline {
-            height: 1px;
-            width: 0;
+        .spoiler {
             background: white;
-            transition: width 0.3s ease;
-            margin-top: 2px;
+            color: transparent;
+            cursor: pointer;
+            padding: 0 4px;
+            border-radius: 2px;
+            transition: all 0.2s;
+            user-select: none;
         }
-        .nav-link:hover .animated-underline {
-            width: 100%;
+        .spoiler.revealed {
+            background: transparent;
+            color: inherit;
         }
     </style>
 </head>
-<body>
+<body class="p-6 md:p-12">
 
     <div id="custom-cursor"></div>
     <div class="noise"></div>
-    <div class="blob"></div>
-    <div class="blob blob-2"></div>
+    <div class="grid-bg" id="gridBg"></div>
 
-    <div class="container-box">
-        <!-- Branding -->
-        <header class="mb-12">
-            <h1 class="logo-text">proxyvau.lt</h1>
-            <p class="tagline">Repository</p>
-        </header>
-
-        <!-- Navigation -->
-        <nav>
-            <a href="/~/" class="nav-link group">
-                <div class="flex flex-col items-start">
-                    <div class="flex flex-col">
-                        <span class="text-white nav-title">Vault</span>
-                        <div class="animated-underline"></div>
-                    </div>
-                    <span class="text-[10px] font-mono mt-2 uppercase tracking-[0.2em] opacity-40 group-hover:opacity-100 transition-opacity">Proxies / ~</span>
+    <!-- Security Notice Modal -->
+    <div id="warning-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-3xl transition-opacity duration-700">
+        <div class="proxy-card p-10 max-w-lg w-full mx-4 shadow-2xl">
+            <div class="flex flex-col items-center text-center">
+                <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-6 border border-white/10">
+                    <i data-lucide="shield-alert" class="w-8 h-8 text-white"></i>
                 </div>
-                <div class="text-white/20 group-hover:text-white transition-all transform group-hover:scale-110">
-                    <i data-lucide="shield" class="w-5 h-5"></i>
+                <h2 class="text-2xl font-black text-white mb-4 tracking-tighter uppercase italic">System Access</h2>
+                <div class="text-zinc-400 leading-relaxed mb-8 text-xs font-mono">
+                    Warning: Hey! This is me, <span class="spoiler" onclick="this.classList.add('revealed')">no</span>. 
+                    Yes, I know this is link leaking, but, genuinely, who cares?
+                    <br><br>
+                    Also, this is heavily skidded, before you start laughing.
+                    <br><br>
+                    Xo, дзюцу
                 </div>
-            </a>
-
-            <a href="/_/" class="nav-link group">
-                <div class="flex flex-col items-start">
-                    <div class="flex flex-col">
-                        <span class="text-white nav-title">Cinema</span>
-                        <div class="animated-underline"></div>
-                    </div>
-                    <span class="text-[10px] font-mono mt-2 uppercase tracking-[0.2em] opacity-40 group-hover:opacity-100 transition-opacity">Movies / _</span>
-                </div>
-                <div class="text-white/20 group-hover:text-white transition-all transform group-hover:scale-110">
-                    <i data-lucide="clapperboard" class="w-5 h-5"></i>
-                </div>
-            </a>
-        </nav>
+                <button onclick="closeModal()" class="w-full py-4 bg-white text-black font-black text-[10px] uppercase tracking-[0.3em] rounded-xl hover:bg-zinc-200 transition-all active:scale-95">
+                    Enter The Vault
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer-minimal">
-        <div class="flag-counter-wrapper">
-            <a href="https://info.flagcounter.com/YmXy"><img src="https://s11.flagcounter.com/mini/YmXy/bg_FFFFFF/txt_000000/border_CCCCCC/flags_0/" alt="Flag Counter" border="0"></a>
-        </div>
-    </footer>
+    <!-- Main Content -->
+    <div class="max-w-5xl mx-auto z-10 relative pt-12">
+        
+        <!-- Navigation Header -->
+        <header class="flex flex-col gap-12 mb-20">
+            <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                </div>
+                <h1 class="text-7xl md:text-9xl font-black tracking-tighter shimmer-text">VAULT</h1>
+                
+                <nav class="flex flex-wrap items-center gap-2">
+                    <button onclick="switchView('about')" id="btn-about" class="nav-tab active">About</button>
+                    <button onclick="switchView('partners')" id="btn-partners" class="nav-tab">Partners</button>
+                    <div class="w-px h-4 bg-zinc-800 mx-2"></div>
+                    <a href="/_" class="nav-tab hover:text-white flex items-center gap-2">Mirrors <i data-lucide="external-link" class="w-3 h-3"></i></a>
+                    <a href="/~" class="nav-tab hover:text-white flex items-center gap-2">Terminal <i data-lucide="external-link" class="w-3 h-3"></i></a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- About Section -->
+        <main id="aboutContainer" class="view-section animate-fade-in space-y-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div class="space-y-6">
+                    <h2 class="text-2xl font-bold tracking-tight">Access Anything. Everywhere.</h2>
+                    <p class="text-zinc-400 leading-relaxed">
+                        Tired of having to join Discord servers for good proxies & links? No worries! We got you covered :)
+                    </p>
+                    <div class="pt-4 flex gap-4">
+                        <div class="flex flex-col">
+                            <span class="text-2xl font-black">150+</span>
+                            <span class="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Proxies as of today</span>
+                        </div>
+                        <div class="w-px h-10 bg-zinc-800"></div>
+                        <div class="flex flex-col">
+                            <span class="text-2xl font-black">7+</span>
+                            <span class="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Sites</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Updated GIF Card: No shaders, no darkening, highest layer -->
+                <div class="proxy-card relative h-[280px] flex items-center justify-center bg-zinc-900 border-white/20 z-[5] group">
+                    <img 
+                        src="https://i.pinimg.com/originals/35/d9/f6/35d9f643067bdbc5e7e98e3445d834c5.gif" 
+                        class="w-full h-full object-cover relative z-10"
+                        alt="Background Animation"
+                    >
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="proxy-card p-6 space-y-4">
+                    <i data-lucide="zap" class="w-5 h-5 text-white"></i>
+                    <h3 class="font-bold text-sm">Functional</h3>
+                    <p class="text-xs text-zinc-500 font-mono">We (will soon) add checkers to the links to ensure everything stays up.</p>
+                </div>
+                <div class="proxy-card p-6 space-y-4">
+                    <i data-lucide="layers" class="w-5 h-5 text-white"></i>
+                    <h3 class="font-bold text-sm">Filtered</h3>
+                    <p class="text-xs text-zinc-500 font-mono">Hate having to be pinged? No worries! With the next update, every website's blocker info will be displayed here, right at your fingertips</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Partners Section -->
+        <main id="partnersContainer" class="view-section hidden animate-fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="proxy-card p-8 group">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
+                            <!-- New Icon for Partnership Request -->
+                            <i data-lucide="user-plus" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-[8px] font-mono px-2 py-1 bg-white/10 rounded uppercase">Tier 1</span>
+                    </div>
+                    <h3 class="text-lg font-black tracking-tight mb-2">Request</h3>
+                    <p class="text-xs text-zinc-500 leading-relaxed mb-6">
+                        yea we dont have many partners now but ye soon enuf !!
+                    </p>
+                    <a href="https://discord.gg/gBapdPQ9" class="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all">
+                        here! <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                    </a>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="mt-40 pt-12 border-t border-zinc-900 flex flex-col md:flex-row justify-between items-center gap-8 pb-12">
+            <div class="flex flex-col items-center md:items-start gap-2">
+                <p class="text-[9px] font-mono text-zinc-600 uppercase tracking-[0.4em]">Stay Unrestricted</p>
+                <p class="text-[8px] font-mono text-zinc-800">VAULT v4.0.2 // Fuck you ted sarandos</p>
+            </div>
+            
+            <!-- Credits Button (Corner Popup Trigger) -->
+            <div class="relative group">
+                <button onclick="toggleCredits()" class="flex items-center gap-3 px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white hover:text-black transition-all group">
+                    <i data-lucide="award" class="w-4 h-4"></i>
+                    <span class="text-[10px] font-bold uppercase tracking-widest">Project Credits</span>
+                </button>
+                
+                <div id="creditsCard" class="absolute bottom-full right-0 mb-4 w-64 p-6 proxy-card hidden animate-fade-in origin-bottom-right">
+                    <h4 class="text-xs font-black uppercase tracking-widest mb-4">The Team</h4>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/10"></div>
+                            <div>
+                                <p class="text-[10px] font-bold">no</p>
+                                <p class="text-[8px] font-mono text-zinc-600">Lead Dev / Skidding</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 opacity-50">
+                            <div class="w-8 h-8 rounded-lg bg-white/10"></div>
+                            <div>
+                                <p class="text-[10px] font-bold">дзюцу</p>
+                                <p class="text-[8px] font-mono text-zinc-600">Design Visionary</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
 
     <script>
-        // Custom Cursor
+        // --- Cursor Logic ---
         const cursor = document.getElementById('custom-cursor');
+        const grid = document.getElementById('gridBg');
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
+
         document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            const xPct = (mouseX / window.innerWidth) * 100;
+            const yPct = (mouseY / window.innerHeight) * 100;
+            grid.style.setProperty('--mouse-x', xPct + '%');
+            grid.style.setProperty('--mouse-y', yPct + '%');
         });
 
-        document.addEventListener('mousedown', () => cursor.style.transform = 'scale(0.6)');
-        document.addEventListener('mouseup', () => cursor.style.transform = 'scale(1)');
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.2;
+            cursorY += (mouseY - cursorY) * 0.2;
+            cursor.style.transform = `translate3d(${cursorX - 10}px, ${cursorY - 10}px, 0)`;
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
 
-        // Lucide
+        // --- View Switching ---
+        function switchView(view) {
+            document.querySelectorAll('.view-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`${view}Container`).classList.remove('hidden');
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`btn-${view}`).classList.add('active');
+            lucide.createIcons();
+        }
+
+        // --- Modal & Credits ---
+        function closeModal() {
+            const modal = document.getElementById('warning-modal');
+            modal.style.opacity = '0';
+            setTimeout(() => modal.remove(), 700);
+        }
+
+        function toggleCredits() {
+            const card = document.getElementById('creditsCard');
+            card.classList.toggle('hidden');
+        }
+
+        // Initial setup
         lucide.createIcons();
     </script>
 </body>
