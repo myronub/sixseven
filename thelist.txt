@@ -4,47 +4,47 @@ https://vapor.my
 https://vaporr.neocities.org
 - Galactic
 https://road.halfwaythere.ca/ | lw
-https://tickets.flightbooker.co.za/ | fg, bs, gg, lw, ck
-https://galxy.autos.cdn.cloudflare.net/ | fg, bs
+https://tickets.flightbooker.co.za/ | fg, bl, gg, lw, ck
+https://galxy.autos.cdn.cloudflare.net/ | fg, bl
 https://socksforchristmas.kijkmeaanwanneerik.com/ | pa, lw
 https://galxy.autos/ | lw
-https://water.heatmypool.com | fg, pa, bs, gg
-https://whispering-emerald-sky.shop.cdn.cloudflare.net | fg, pa, bs, lw
+https://water.heatmypool.com | fg, pa, bl, gg
+https://whispering-emerald-sky.shop.cdn.cloudflare.net | fg, pa, bl, lw
 https://nope.tablero-anmac.ar | lw, pa
-https://help.thepresenttraveller.com | fg, gg, bs
+https://help.thepresenttraveller.com | fg, gg, bl
 https://list.bostoncareercounselor.com | fg, pa, gg, ck
-https://camping.outdoorzone.ie
-https://grow.lbry.ru
-https://falconon.top
-https://rogojr9284r8r.halfwaythere.ca
-https://grass.104.243.43.17.nip.io
-https://supercalifragilisticexpialidocious.eminescusm.ro
-https://mystic-amber-breeze.shop.cdn.cloudflare.net
-https://final-exam.studyguide.pro-house.cl
-https://spacehubs-galaxy.pro-house.cl
-https://test65.myclarevision.com
+https://camping.outdoorzone.ie | fg, pa, bl, gg
+https://grow.lbry.ru | fg, pa, bl, lw
+https://falconon.top | lw, pa
+https://rogojr9284r8r.halfwaythere.ca | lw
+https://grass.104.243.43.17.nip.io | fg, pa, gg, sg
+https://supercalifragilisticexpialidocious.eminescusm.ro | fg, pa, ck
+https://mystic-amber-breeze.shop.cdn.cloudflare.net | ls, fg, pa, bl, sg, lw
+https://final-exam.studyguide.pro-house.cl | fg, pa, bl, lw
+https://spacehubs-galaxy.pro-house.cl | bl, lw, fg, pa
+https://test65.myclarevision.com | fg, bl, lw
 - Axiom V4
-https://cobolt.tovamiasto.com
-https://bank.primeflk.ch
-https://clubs.trottparkfencingclub.org.au
-https://algebra.marqenhotels.com/
+https://cobolt.tovamiasto.com | sg, pa, lw
+https://bank.primeflk.ch | bl, gg, pa
+https://clubs.trottparkfencingclub.org.au | bl, pa
+https://algebra.marqenhotels.com/ | pa, gg, ck
 - Fern
 https://fern.best/
-https://talesfiction.com/
-https://snapclass.site/
-https://supermath.site/
-https://hakoda.wtf/
+https://talesfiction.com/ | fg, bl, lw, ck
+https://snapclass.site/ | fg, pa, gg, ck
+https://supermath.site/ | fg, bl, gg, lw, ck
+https://hakoda.wtf/ | pa, bl, gg
 https://siftfilter.com/
 https://3e3c.org/
-https://literacyadventures.com/
-https://mrspechan.com/
-https://creativefish.org/
-https://mathhelper.primeflk.ch/
-https://cooolbeans.primeflk.ch/
-https://studentvuegrades.primeflk.ch/
-https://kingdomheartspeak.primeflk.ch/
-https://securlysettings.primeflk.ch/
-https://mathworkforreal.lbry.ru/
+https://literacyadventures.com/ | gg, ck
+https://mrspechan.com/ | fg, gg, ck
+https://creativefish.org/ | fg, bl, gg, ck
+https://mathhelper.primeflk.ch/ | fg, pa, gg, bl
+https://cooolbeans.primeflk.ch/ | fg, bl, pa, gg
+https://studentvuegrades.primeflk.ch/ | fg, pa, bl, gg
+https://kingdomheartspeak.primeflk.ch/ | fg, pa, bl, gg
+https://securlysettings.primeflk.ch/ | fg, pa, bl, gg
+https://mathworkforreal.lbry.ru/ |
 https://akanetheghost.lbry.ru/
 https://bbl.lbry.ru/
 https://thanostheoldgrapeguy.lbry.ru/
