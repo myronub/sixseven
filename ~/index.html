@@ -268,15 +268,15 @@
                                 <span class="text-[9px] font-mono text-zinc-500 uppercase tracking-widest">Select ID</span>
                             </div>
                             <div id="filterOptions">
-                                <div class="filter-item" data-tag="ls"><div class="filter-checkbox"></div>Lightspeed</div>
-                                <div class="filter-item" data-tag="fg"><div class="filter-checkbox"></div>Fortiguard</div>
-                                <div class="filter-item" data-tag="pa"><div class="filter-checkbox"></div>Palo Alto</div>
-                                <div class="filter-item" data-tag="bl"><div class="filter-checkbox"></div>Blocksi</div>
-                                <div class="filter-item" data-tag="gg"><div class="filter-checkbox"></div>GoGuardian</div>
-                                <div class="filter-item" data-tag="sg"><div class="filter-checkbox"></div>Securly</div>
-                                <div class="filter-item" data-tag="lw"><div class="filter-checkbox"></div>Linewize</div>
-                                <div class="filter-item" data-tag="ck"><div class="filter-checkbox"></div>ContentKeeper</div>
-                                <div class="filter-item" data-tag="ct"><div class="filter-checkbox"></div>Cisco Talos</div>
+                                <div class="filter-item" data-tag="ls"><div class="filter-checkbox"></div>LS (Lightspeed)</div>
+                                <div class="filter-item" data-tag="fg"><div class="filter-checkbox"></div>FG (Fortiguard)</div>
+                                <div class="filter-item" data-tag="pa"><div class="filter-checkbox"></div>PA (Palo Alto)</div>
+                                <div class="filter-item" data-tag="bl"><div class="filter-checkbox"></div>BL (Blocksi)</div>
+                                <div class="filter-item" data-tag="gg"><div class="filter-checkbox"></div>GG (GoGuardian)</div>
+                                <div class="filter-item" data-tag="sg"><div class="filter-checkbox"></div>SG (Securly)</div>
+                                <div class="filter-item" data-tag="lw"><div class="filter-checkbox"></div>LW (Linewize)</div>
+                                <div class="filter-item" data-tag="ck"><div class="filter-checkbox"></div>CK (ContentKeeper)</div>
+                                <div class="filter-item" data-tag="ct"><div class="filter-checkbox"></div>CT (Cisco Talos)</div>
                             </div>
                             <button id="clearFilters" class="w-full p-4 border-t border-zinc-900 text-[9px] font-mono text-zinc-600 hover:text-white uppercase tracking-widest text-center">Clear All</button>
                         </div>
@@ -381,14 +381,15 @@
         }
 
         // Helper to normalize input tags to abbreviations
+        // Sychronized with data-tag values in filterOptions
         function normalizeTag(tag) {
             const map = {
                 'lightspeed': 'ls',
                 'fortiguard': 'fg',
                 'palo_alto': 'pa',
-                'blocksi': 'bs',
+                'blocksi': 'bl',
                 'goguardian': 'gg',
-                'securly': 'sc',
+                'securly': 'sg',
                 'linewize': 'lw',
                 'contentkeeper': 'ck',
                 'cisco_talos': 'ct'
@@ -417,6 +418,7 @@
                     } else if (currentGroup) {
                         const parts = trimmed.split('|');
                         const url = parts[0].trim();
+                        // Normalize tags to lowercase and replace spaces with underscores for mapping
                         const rawTags = parts[1] ? parts[1].split(',').map(t => t.trim().toLowerCase().replace(/\s+/g, '_')) : [];
                         const tags = rawTags.map(normalizeTag);
                         currentGroup.items.push({ url, tags });
@@ -494,6 +496,7 @@
                 
                 let matchesTags = true;
                 if (selectedTags.size > 0) {
+                    // Item must have ALL selected tags
                     matchesTags = [...selectedTags].every(tag => cardTags.includes(tag));
                 }
                 
