@@ -21,7 +21,7 @@
                     },
                     colors: {
                         brand: {
-                            primary: 'oklch(0.7 0.2 250)', // Vibrant Blue
+                            primary: 'oklch(0.7 0.2 250)', 
                             secondary: 'oklch(0.4 0.15 250)',
                         }
                     }
@@ -33,9 +33,9 @@
     <style>
         @layer base {
             :root {
-                --bg-main: oklch(0.12 0.01 250);
-                --surface: oklch(0.18 0.02 250 / 0.6);
-                --border-dim: oklch(1 0 0 / 0.08);
+                --bg-main: oklch(0.1 0.01 250);
+                --surface: oklch(0.15 0.02 250 / 0.4);
+                --border-dim: oklch(1 0 0 / 0.06);
                 --accent: oklch(0.7 0.2 250);
                 scrollbar-gutter: stable;
             }
@@ -44,167 +44,237 @@
                 background-color: var(--bg-main);
                 color: oklch(0.9 0.01 250);
                 background-image: 
-                    radial-gradient(circle at 0% 0%, oklch(0.4 0.1 260 / 0.15) 0px, transparent 50%),
-                    radial-gradient(circle at 100% 100%, oklch(0.3 0.1 280 / 0.1) 0px, transparent 50%);
+                    radial-gradient(circle at 0% 0%, oklch(0.3 0.1 260 / 0.1) 0px, transparent 40%),
+                    radial-gradient(circle at 100% 0%, oklch(0.2 0.08 280 / 0.05) 0px, transparent 40%);
                 background-attachment: fixed;
                 min-height: 100vh;
                 font-optical-sizing: auto;
                 text-rendering: optimizeLegibility;
                 -webkit-font-smoothing: antialiased;
+                cursor: none; 
             }
         }
 
-        /* Advanced Typography */
-        h1, h2, h3 { text-wrap: balance; letter-spacing: -0.02em; }
-        p { text-wrap: pretty; max-width: 65ch; }
+        #custom-cursor {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.15s ease-out;
+            display: none;
+        }
 
-        /* Glassmorphism & Effects */
+        @media (pointer: fine) {
+            #custom-cursor { display: block; }
+        }
+
+        .max-width-container { max-width: 1100px; margin: 0 auto; width: 100%; }
+        
         .glass {
             background: var(--surface);
-            backdrop-filter: blur(20px) saturate(180%);
+            backdrop-filter: blur(24px) saturate(160%);
             border: 1px solid var(--border-dim);
-            box-shadow: inset 0 1px 1px oklch(1 0 0 / 0.05);
+            transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
         }
 
-        /* List Items - No Cards */
-        .proxy-group-header {
-            position: sticky;
-            top: 5rem;
-            z-index: 20;
-            background: oklch(0.12 0.01 250 / 0.8);
-            backdrop-filter: blur(8px);
-            padding: 0.75rem 1rem;
-            margin-top: 2rem;
-            border-bottom: 1px solid var(--border-dim);
+        .search-container {
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
         }
 
+        h1, h2, h3 { text-wrap: balance; letter-spacing: -0.03em; }
+        
         .mirror-row {
             display: grid;
-            grid-template-columns: subgrid;
-            grid-column: 1 / -1;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            padding: 1rem 1.25rem;
             border-bottom: 1px solid oklch(1 0 0 / 0.03);
+            transition: all 0.3s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+        .mirror-row:last-child { border-bottom: none; }
+        .mirror-row:hover { 
+            background: oklch(1 0 0 / 0.05);
+            transform: translateX(4px);
         }
 
-        .mirror-row:hover {
-            background: oklch(1 0 0 / 0.03);
-            padding-left: 0.5rem;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb {
-            background: oklch(1 0 0 / 0.2);
+            background: oklch(1 0 0 / 0.1);
             border-radius: 10px;
         }
 
-        /* Animations */
-        @keyframes reveal {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.98) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-reveal { animation: fadeInScale 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards; }
+
+        .modal-spring { transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+        .spoiler {
+            background: oklch(1 0 0 / 0.1);
+            color: transparent;
+            cursor: pointer;
+            padding: 0 4px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+        .spoiler.revealed {
+            background: transparent;
+            color: inherit;
+            user-select: auto;
         }
 
-        .animate-reveal {
-            animation: reveal 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+        .proxy-group {
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
-        /* Modal specific spring easing */
-        .modal-spring {
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* Styling for the flag counter embed */
+        .flag-counter-wrapper {
+            filter: grayscale(1) invert(1) brightness(1.2); /* Make it fit the dark theme */
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        .flag-counter-wrapper:hover {
+            opacity: 1;
+            filter: grayscale(0) invert(0);
         }
     </style>
 </head>
-<body class="flex flex-col">
+<body class="flex flex-col min-h-screen">
 
-    <!-- Warning Modal -->
-    <div id="warning-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-500">
-        <div class="glass p-8 max-w-md w-full mx-4 rounded-3xl modal-spring scale-75 opacity-0" id="modal-content">
-            <div class="flex flex-col items-center text-center gap-6">
-                <div class="w-16 h-16 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-500">
-                    <i data-lucide="shield-alert" class="w-8 h-8"></i>
+    <div id="custom-cursor"></div>
+
+    <!-- Updated Warning Modal -->
+    <div id="warning-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-2xl opacity-0 pointer-events-none transition-opacity duration-700">
+        <div class="glass p-10 max-w-lg w-full mx-4 rounded-[2.5rem] modal-spring scale-90 opacity-0 shadow-2xl shadow-blue-500/5" id="modal-content">
+            <div class="flex flex-col items-center text-center">
+                <div class="w-20 h-20 rounded-3xl bg-blue-500/10 flex items-center justify-center text-blue-400 mb-8 border border-blue-500/20 rotate-3">
+                    <i data-lucide="info" class="w-10 h-10"></i>
                 </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-white mb-2">Vault Access</h2>
-                    <p class="text-gray-400">
-                        I know this is considered link leaking, but, dude, who cares? 
-                    </p>
+                <h2 class="text-3xl font-black text-white mb-4 tracking-tight">Warning:</h2>
+                <div class="text-gray-400 leading-relaxed mb-8 text-lg">
+                    Hey! This is me, <span class="spoiler" id="spoiler-name" onclick="this.classList.add('revealed')">no</span>. 
+                    Yes, I know this is link leaking, but, genuinely, who cares?
+                    <br><br>
+                    Also, this is heavily skidded, before you start laughing.
+                    <br><br>
+                    Xo, дзюцу
                 </div>
-                <button onclick="closeModal()" class="w-full py-4 px-6 bg-white text-black font-bold rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/5">
-                    Enter the Vault
-                </button>
+                <div class="grid grid-cols-1 w-full gap-3">
+                    <button onclick="closeModal()" class="w-full py-4 px-6 bg-white text-black font-bold rounded-2xl hover:bg-gray-100 active:scale-[0.98] transition-all text-lg shadow-lg">
+                        Proceed
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Header -->
-    <header class="sticky top-0 z-50 w-full glass border-b-0">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-primary to-blue-900 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                    <i data-lucide="box" class="w-6 h-6 text-white"></i>
+    <header class="sticky top-0 z-50 glass border-b-0">
+        <div class="max-width-container px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg shadow-white/5 group">
+                    <i data-lucide="box" class="w-5 h-5 text-black transition-transform group-hover:scale-110"></i>
                 </div>
                 <div>
-                    <h1 class="font-black text-xl tracking-tight text-white leading-none">proxyvau.lt</h1>
-                    <p class="text-[10px] font-mono text-brand-primary mt-1 uppercase tracking-widest opacity-70">domain coming soon</p>
+                    <h1 class="font-black text-lg tracking-tight text-white leading-none">proxyvau.lt</h1>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-[10px] font-mono text-gray-500 uppercase tracking-tighter">Vault Repository</span>
+                    </div>
                 </div>
             </div>
             
-            <nav class="flex gap-6">
-                <button onclick="fetchList()" class="text-sm font-semibold text-gray-400 hover:text-white transition-colors flex items-center gap-2">
-                    <i data-lucide="refresh-cw" class="w-4 h-4" id="refresh-icon"></i> Refresh List
+            <div class="flex items-center gap-6">
+                <!-- Flag Counter Integration -->
+                <div class="hidden md:block flag-counter-wrapper overflow-hidden rounded-lg">
+                    <a href="https://info.flagcounter.com/YmXy"><img src="https://s11.flagcounter.com/mini/YmXy/bg_FFFFFF/txt_000000/border_CCCCCC/flags_0/" alt="Flag Counter" border="0"></a>
+                </div>
+                
+                <button onclick="fetchList()" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/10 text-gray-400 hover:text-white transition-all" title="Refresh Vault">
+                    <i data-lucide="refresh-cw" class="w-5 h-5" id="refresh-icon"></i>
                 </button>
-            </nav>
+            </div>
         </div>
     </header>
 
-    <!-- Main -->
-    <main class="flex-grow max-w-5xl w-full mx-auto px-6 py-12">
-        
-        <section class="mb-16 animate-reveal">
-            <div class="inline-block px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-brand-primary text-xs font-bold mb-6">
-                LOCAL FETCH ENABLED
+    <!-- Sub-Nav / Search -->
+    <div class="glass border-x-0 border-t-0 sticky top-20 z-40">
+        <div class="max-width-container px-6 py-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div class="relative w-full md:max-w-md search-container">
+                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                <input 
+                    type="text" 
+                    id="search-input"
+                    placeholder="Search mirrors..." 
+                    class="w-full bg-black/40 border border-white/5 rounded-2xl py-3 pl-11 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/40 transition-all placeholder:text-gray-600"
+                    oninput="handleSearch()"
+                >
             </div>
-            <h2 class="text-4xl md:text-6xl font-extrabold text-white mb-6">The definitive <br><span class="opacity-40">mirror repository.</span></h2>
-            <p class="text-gray-400 text-lg">Automatically reading from <code class="text-brand-primary">thelist.txt</code>. No more hunting through discord messages for working links.</p>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Items:</span>
+                    <span id="item-count" class="text-xs font-mono text-white">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-width-container px-6 py-12">
+        
+        <section class="mb-12 animate-reveal">
+            <h2 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tighter">Proxy<span class="text-brand-primary">Vault</span></h2>
+            <p class="text-gray-500 text-lg max-w-2xl">No more discord servers :)</p>
         </section>
 
-        <!-- Dynamic Results Section -->
-        <div id="status-message" class="text-center py-20 opacity-50 font-mono text-sm hidden">
-            Searching for thelist.txt...
-        </div>
-
-        <div id="results-container" class="space-y-12">
-            <!-- List Header -->
-            <div class="grid grid-cols-12 gap-4 px-4 py-3 text-[10px] font-bold text-gray-600 uppercase tracking-[0.2em] border-b border-white/5">
-                <div class="col-span-8 md:col-span-10">Mirror Address</div>
-                <div class="col-span-4 md:col-span-2 text-right">Utility</div>
-            </div>
-
+        <div id="results-container" class="space-y-8 opacity-0 transition-opacity duration-700">
             <div id="proxy-list-content">
                 <!-- Content gets injected here -->
             </div>
         </div>
 
+        <!-- No Results -->
+        <div id="no-results" class="hidden text-center py-20">
+            <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-gray-600 mx-auto mb-4">
+                <i data-lucide="search-x" class="w-8 h-8"></i>
+            </div>
+            <p class="text-gray-400 font-medium">No mirrors found matching your query.</p>
+            <button onclick="resetSearch()" class="mt-4 text-brand-primary text-sm font-bold hover:underline">Clear Search</button>
+        </div>
+
     </main>
 
-    <footer class="py-12 border-t border-white/5 text-center">
-        <p class="text-xs text-gray-600 font-mono">proxyvau.lt // v2.0 // no credits needed</p>
-    </footer>
-
     <!-- Toast -->
-    <div id="toast-container" class="fixed bottom-8 right-8 z-[100]"></div>
+    <div id="toast-container" class="fixed bottom-8 right-8 z-[100] flex flex-col gap-2 items-end"></div>
 
     <script>
+        let fullDataText = "";
+        let totalItems = 0;
+
+        // Custom Cursor Movement
+        const cursor = document.getElementById('custom-cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        document.addEventListener('mousedown', () => cursor.style.transform = 'scale(0.8)');
+        document.addEventListener('mouseup', () => cursor.style.transform = 'scale(1)');
+
         lucide.createIcons();
 
-        // Modal initialization
         window.onload = () => {
             const modal = document.getElementById('warning-modal');
             const content = document.getElementById('modal-content');
             modal.classList.remove('opacity-0', 'pointer-events-none');
-            content.classList.remove('scale-75', 'opacity-0');
-            
-            // Auto-fetch the list on load
+            content.classList.remove('scale-90', 'opacity-0');
             fetchList();
         };
 
@@ -216,96 +286,131 @@
         async function fetchWithRetry(url, options = {}, retries = 5, backoff = 1000) {
             try {
                 const response = await fetch(url, options);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                if (!response.ok) throw new Error(`Status: ${response.status}`);
                 return response;
             } catch (err) {
                 if (retries <= 0) throw err;
-                await new Promise(resolve => setTimeout(resolve, backoff));
+                await new Promise(r => setTimeout(r, backoff));
                 return fetchWithRetry(url, options, retries - 1, backoff * 2);
             }
         }
 
         async function fetchList() {
             const icon = document.getElementById('refresh-icon');
-            const status = document.getElementById('status-message');
+            const container = document.getElementById('results-container');
+            
             icon.classList.add('animate-spin');
-            status.classList.remove('hidden');
+            container.classList.add('opacity-0');
 
             try {
-                // Use relative path clearly for the browser
                 const response = await fetchWithRetry('./thelist.txt');
-                const text = await response.text();
-                parseAndRender(text);
-                showToast('Vault synchronized', 'success');
+                fullDataText = await response.text();
+                parseAndRender(fullDataText);
+                showToast('Vault Synchronized', 'success');
+                container.classList.remove('opacity-0');
             } catch (err) {
                 console.error('Fetch error:', err);
-                showToast('thelist.txt not found', 'error');
-                status.textContent = 'Error: thelist.txt could not be retrieved. Ensure it exists in the root directory.';
+                showToast('Sync Failed', 'error');
             } finally {
                 icon.classList.remove('animate-spin');
             }
         }
 
-        function parseAndRender(text) {
-            const container = document.getElementById('proxy-list-content');
-            const status = document.getElementById('status-message');
-            container.innerHTML = '';
-            status.classList.add('hidden');
+        function handleSearch() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            parseAndRender(fullDataText, query);
+        }
 
+        function resetSearch() {
+            document.getElementById('search-input').value = '';
+            handleSearch();
+        }
+
+        function parseAndRender(text, filter = '') {
+            const container = document.getElementById('proxy-list-content');
+            const noResults = document.getElementById('no-results');
+            const countDisplay = document.getElementById('item-count');
+            
+            container.innerHTML = '';
+            
             const lines = text.split('\n');
-            let currentGroup = null;
+            totalItems = 0;
+
+            let currentGroupData = null;
 
             lines.forEach(line => {
                 const trimmed = line.trim();
                 if (!trimmed || trimmed.startsWith('---')) return;
 
-                // Check for Group Header: "- Name"
                 if (trimmed.startsWith('- ')) {
-                    const groupName = trimmed.replace('- ', '');
-                    currentGroup = document.createElement('div');
-                    currentGroup.className = 'proxy-group mb-8 animate-reveal';
-                    currentGroup.innerHTML = `
-                        <div class="proxy-group-header rounded-t-xl">
-                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-brand-primary shadow-[0_0_8px_var(--accent)]"></span>
-                                ${groupName}
-                            </h3>
-                        </div>
-                        <div class="proxy-rows-container grid grid-cols-12 glass rounded-b-xl overflow-hidden border-t-0">
-                        </div>
-                    `;
-                    container.appendChild(currentGroup);
-                } else if (currentGroup) {
-                    // It's a link
-                    const rowsContainer = currentGroup.querySelector('.proxy-rows-container');
-                    const row = document.createElement('div');
-                    row.className = 'mirror-row px-4 py-4 items-center';
-                    
-                    row.innerHTML = `
-                        <div class="col-span-8 md:col-span-10 flex items-center gap-4 overflow-hidden">
-                            <span class="font-mono text-sm text-gray-400 truncate hover:text-white transition-colors select-all cursor-pointer">
-                                ${trimmed}
-                            </span>
-                        </div>
-                        <div class="col-span-4 md:col-span-2 flex justify-end gap-2">
-                            <button onclick="copyLink('${trimmed}')" class="p-2 hover:bg-white/10 rounded-lg text-gray-500 hover:text-white transition-all active:scale-90">
-                                <i data-lucide="copy" class="w-4 h-4"></i>
-                            </button>
-                            <a href="${trimmed.startsWith('http') ? trimmed : 'https://' + trimmed}" target="_blank" class="p-2 hover:bg-brand-primary/20 rounded-lg text-gray-500 hover:text-brand-primary transition-all active:scale-90">
-                                <i data-lucide="external-link" class="w-4 h-4"></i>
-                            </a>
-                        </div>
-                    `;
-                    rowsContainer.appendChild(row);
+                    if (currentGroupData) renderGroup(currentGroupData, container, filter);
+                    currentGroupData = { name: trimmed.replace('- ', ''), items: [] };
+                } else if (currentGroupData) {
+                    currentGroupData.items.push(trimmed);
                 }
             });
+            if (currentGroupData) renderGroup(currentGroupData, container, filter);
+
+            countDisplay.textContent = totalItems;
+            
+            if (totalItems === 0 && filter) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
 
             lucide.createIcons();
         }
 
+        function renderGroup(group, container, filter) {
+            const filteredItems = group.items.filter(item => 
+                item.toLowerCase().includes(filter) || group.name.toLowerCase().includes(filter)
+            );
+
+            if (filteredItems.length === 0) return;
+
+            totalItems += filteredItems.length;
+
+            const groupEl = document.createElement('div');
+            groupEl.className = 'proxy-group mb-12 animate-reveal';
+            
+            let itemsHtml = filteredItems.map(item => `
+                <div class="mirror-row">
+                    <div class="flex items-center gap-4 overflow-hidden">
+                        <div class="w-1.5 h-1.5 rounded-full bg-blue-500/40"></div>
+                        <span class="font-mono text-sm text-gray-300 truncate select-all cursor-pointer hover:text-white transition-colors">
+                            ${item}
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="copyLink('${item}')" class="p-2 hover:bg-white/5 rounded-xl text-gray-500 hover:text-white transition-all">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                        <a href="${item.startsWith('http') ? item : 'https://' + item}" target="_blank" class="p-2 hover:bg-blue-500/10 rounded-xl text-gray-500 hover:text-brand-primary transition-all">
+                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+
+            groupEl.innerHTML = `
+                <div class="flex items-center justify-between px-2 mb-4">
+                    <h3 class="text-xs font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-3">
+                        ${group.name}
+                        <span class="h-[1px] w-8 bg-white/5"></span>
+                    </h3>
+                    <span class="text-[10px] font-mono text-gray-700">${filteredItems.length} mirrors</span>
+                </div>
+                <div class="glass rounded-[2rem] overflow-hidden">
+                    ${itemsHtml}
+                </div>
+            `;
+            container.appendChild(groupEl);
+        }
+
         function copyLink(text) {
             navigator.clipboard.writeText(text);
-            showToast('Copied to clipboard', 'success');
+            showToast('Address Copied', 'success');
         }
 
         function showToast(msg, type) {
@@ -313,16 +418,18 @@
             const el = document.createElement('div');
             const isError = type === 'error';
             
-            el.className = `glass mb-3 pl-4 pr-6 py-3 rounded-2xl flex items-center gap-3 transform translate-y-10 opacity-0 transition-all duration-500 border shadow-2xl ${isError ? 'text-red-400 border-red-500/20' : 'text-brand-primary border-brand-primary/20'}`;
+            el.className = `glass mb-2 pl-4 pr-6 py-3 rounded-2xl flex items-center gap-3 transform translate-x-10 opacity-0 transition-all duration-500 shadow-2xl border ${isError ? 'text-red-400 border-red-500/20' : 'text-blue-400 border-blue-500/20'}`;
             el.innerHTML = `
-                <i data-lucide="${isError ? 'x-circle' : 'check-circle'}" class="w-4 h-4"></i>
-                <span class="text-sm font-bold tracking-tight">${msg}</span>
+                <div class="w-6 h-6 rounded-lg flex items-center justify-center bg-current/10">
+                    <i data-lucide="${isError ? 'alert-circle' : 'check'}" class="w-3.5 h-3.5"></i>
+                </div>
+                <span class="text-xs font-bold tracking-tight">${msg}</span>
             `;
             
             container.appendChild(el);
-            setTimeout(() => el.classList.remove('translate-y-10', 'opacity-0'), 10);
+            setTimeout(() => el.classList.remove('translate-x-10', 'opacity-0'), 10);
             setTimeout(() => {
-                el.classList.add('translate-y-4', 'opacity-0');
+                el.classList.add('translate-x-4', 'opacity-0');
                 setTimeout(() => el.remove(), 500);
             }, 3000);
             lucide.createIcons();
